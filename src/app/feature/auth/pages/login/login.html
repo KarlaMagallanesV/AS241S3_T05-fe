@@ -1,0 +1,62 @@
+@if (isLoading) {
+  <app-loader></app-loader>
+}
+
+@if (!isLoading) {
+  <div class="login-container">
+    <div class="login-card">
+      <!-- Sección del formulario -->
+      <div class="form-section" [formGroup]="loginForm">
+        <h2 class="title">BIENVENIDA A NIRE SPA</h2>
+        <div class="form-group">
+          <label for="email">CORREO ELECTRONICO</label>
+          <div class="input-wrapper">
+            <input type="email" id="email" formControlName="username" class="form-control" [(ngModel)]="username" name="email" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">CONTRASEÑA</label>
+          <div class="input-wrapper">
+            <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" class="form-control"
+              [(ngModel)]="password" name="passwordUser" required />
+              <img [src]="showPassword ? 'ojo-abierto.png' : 'ojo-cerrado.png'" class="eye-icon"
+                alt="Mostrar/Ocultar contraseña" (click)="togglePasswordVisibility()" />
+              </div>
+            </div>
+            <div class="remember-password" (click)="showForgotPasswordAlert()"
+              [class.clicked]="isForgotPasswordClicked">
+              <label class="custom-checkbox">
+                ¿Has olvidado tu contraseña?
+              </label>
+              <img src="tijera-peine.png" alt="Scissors" class="scissors-icon" />
+            </div>
+            <!-- Mensaje emergente -->
+            @if (showForgotPasswordMessage) {
+              <div class="forgot-password-message">
+                <div class="message-content">
+                  <div class="message-icon">
+                    <img src="alerta.png" alt="Icono de alerta" class="custom-alert-icon">
+                  </div>
+                  <h4>¿Olvidaste tu contraseña?</h4>
+                  <p>Por favor, comunícate con el administrador del sistema para ayudarte a restablecerla.</p>
+                  <div class="message-footer"></div>
+                </div>
+              </div>
+            }
+            <div class="separator">
+              <hr />
+              <img src="tijera.png" alt="Scissors" class="scissors-icon-separator" />
+              <hr />
+            </div>
+            <button class="login-button" (click)="login()">Iniciar Sesión</button>
+          </div>
+          <!-- Sección visual -->
+          <div class="visual-section">
+            <img src="Logo.png" alt="Logo" class="logo" />
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <img src="niña.png" alt="Niña" class="niña" />
+          </div>
+        </div>
+      </div>
+    }

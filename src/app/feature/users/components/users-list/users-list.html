@@ -1,0 +1,46 @@
+<!-- Grid de cards -->
+<div class="cards-grid">
+  @for (user of users; track user) {
+    <div class="user-card" [class.inactive]="!user.status">
+      <div class="card-header">
+        <span class="user-name">{{ user.username }}</span>
+        <span class="status-badge" [class.active]="user.status">
+          {{ user.status ? 'Activo' : 'Inactivo' }}
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="user-info">
+          <div class="info-item">
+            <i class="fas fa-user-shield"></i>
+            <span>Rol: {{ getRoleLabel(user.role) }}</span>
+          </div>
+          @if (user.employee_id) {
+            <div class="info-item">
+              <i class="fas fa-briefcase"></i>
+              <span>Empleado ID: {{ user.employee_id }}</span>
+            </div>
+          }
+          @if (user.client_id) {
+            <div class="info-item">
+              <i class="fas fa-user"></i>
+              <span>Cliente ID: {{ user.client_id }}</span>
+            </div>
+          }
+          <div class="info-item">
+            <i class="fas fa-calendar"></i>
+            <span>Registro: {{ user.registrationDate | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button
+          class="card-btn toggle-btn"
+          [class.restore-btn]="!user.status"
+          (click)="toggleStatus(user)"
+          [title]="user.status ? 'Desactivar' : 'Restaurar'">
+          <i class="fas fa-power-off"></i>
+        </button>
+      </div>
+    </div>
+  }
+</div>

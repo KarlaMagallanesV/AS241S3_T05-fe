@@ -1,0 +1,267 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
+  <h3 class="step-title">{{ reservation ? 'EDITAR RESERVACIÓN' : 'NUEVA RESERVACIÓN' }}</h3>
+
+  @if (isReservationCancelled) {
+    <div class="alert-warning">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>Esta reservación está cancelada. No se puede editar. Debe restaurarla primero.</span>
+    </div>
+  }
+
+  <div class="form-fields">
+    <!-- Cliente y Empleado en dos columnas -->
+    <div class="form-group-row">
+      <!-- Cliente -->
+      <div class="form-group">
+        <label>CLIENTE *</label>
+        <button
+          type="button"
+          class="select-button"
+          (click)="openClientModal()">
+          {{ selectedClient ? (selectedClient.nameClient + ' ' + selectedClient.lastname) : 'Seleccionar cliente' }}
+        </button>
+        @if (selectedClient) {
+          <div class="selected-item">
+            <span>{{ selectedClient.nameClient }} {{ selectedClient.lastname }}</span>
+            <button type="button" class="clear-btn" (click)="clearClient()">×</button>
+          </div>
+        }
+        @if (form.get('clientId')?.invalid && form.get('clientId')?.touched) {
+          <div class="error">
+            <span>El cliente es obligatorio</span>
+          </div>
+        }
+      </div>
+
+      <!-- Empleado -->
+      <div class="form-group">
+        <label>EMPLEADO *</label>
+        <button
+          type="button"
+          class="select-button"
+          (click)="openEmployeeModal()">
+          {{ selectedEmployee ? (selectedEmployee.nameEmployee + ' ' + selectedEmployee.lastname) : 'Seleccionar empleado' }}
+        </button>
+        @if (selectedEmployee) {
+          <div class="selected-item">
+            <span>{{ selectedEmployee.nameEmployee }} {{ selectedEmployee.lastname }}</span>
+            <button type="button" class="clear-btn" (click)="clearEmployee()">×</button>
+          </div>
+        }
+        @if (form.get('employeeId')?.invalid && form.get('employeeId')?.touched) {
+          <div class="error">
+            <span>El empleado es obligatorio</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Servicios -->
+    <div class="form-group">
+      <label>SERVICIOS *</label>
+      <button type="button" class="add-service-btn" (click)="openServiceModal()">
+        <i class="fas fa-plus"></i> Agregar Servicio
+      </button>
+      @if (selectedServices.length > 0) {
+        <div class="services-list">
+          @for (service of selectedServices; track $index; let i = $index) {
+            <div class="service-item">
+              <div class="service-info">
+                <span class="service-name">{{ service.name_service }}</span>
+                <span class="service-details">{{ service.code }} - S/. {{ service.price }} - {{ service.points }} pts</span>
+              </div>
+              <button type="button" class="remove-btn" (click)="removeService(i)">×</button>
+            </div>
+          }
+        </div>
+      }
+      @if (selectedServices.length === 0) {
+        <div class="info-message">
+          Agregue al menos un servicio para la reservación
+        </div>
+      }
+    </div>
+
+    <!-- Estado (solo al editar) -->
+    @if (reservation) {
+      <div class="form-group">
+        <label for="status">ESTADO *</label>
+        <select id="status" formControlName="status" class="form-select">
+          @for (status of availableStatuses; track status.value) {
+            <option [value]="status.value">{{ status.label }}</option>
+          }
+        </select>
+        <small class="field-hint">
+          @if (form.get('status')?.value === 'F') {
+            <span class="status-info">✓ Reservación facturada</span>
+          }
+          @if (form.get('status')?.value === 'A') {
+            <span class="status-info">✓ Reservación atendida</span>
+          }
+        </small>
+      </div>
+    }
+
+    <!-- Fechas -->
+    <div class="form-group-row">
+      <div class="form-group">
+        <label for="serviceDate">FECHA DE INICIO *</label>
+        <input type="date" id="serviceDate" formControlName="serviceDate" [min]="minDate">
+        @if (form.get('serviceDate')?.invalid && form.get('serviceDate')?.touched) {
+          <div class="error">
+            <span>La fecha de inicio es obligatoria</span>
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="serviceDateEnd">FECHA DE FIN *</label>
+        <input type="date" id="serviceDateEnd" formControlName="serviceDateEnd" [min]="form.get('serviceDate')?.value || minDate">
+        @if (form.get('serviceDateEnd')?.invalid && form.get('serviceDateEnd')?.touched) {
+          <div class="error">
+            <span>La fecha de fin es obligatoria</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Subtotal y Puntos (calculados automáticamente) -->
+    <div class="form-group-row">
+      <div class="form-group">
+        <label for="subtotal">SUBTOTAL *</label>
+        <input type="number" id="subtotal" formControlName="subtotal" placeholder="0.00" step="0.01" min="0" readonly>
+        <small class="field-hint">Calculado automáticamente según servicios</small>
+      </div>
+
+      <div class="form-group">
+        <label for="totalPoints">PUNTOS TOTALES</label>
+        <input type="number" id="totalPoints" formControlName="totalPoints" placeholder="0" min="0" readonly>
+        <small class="field-hint">Calculado automáticamente según servicios</small>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- Botones -->
+  <div class="action-buttons">
+    <button type="button" class="btn-secondary" (click)="onCancel()">
+      CANCELAR
+    </button>
+    <button type="submit" class="btn-primary" [disabled]="form.invalid">
+      {{ reservation ? 'GUARDAR CAMBIOS' : 'CREAR RESERVACIÓN' }}
+    </button>
+  </div>
+</form>
+
+<!-- Modal de Clientes -->
+@if (showClientModal) {
+  <div class="modal-overlay" (click)="closeClientModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Seleccionar Cliente</h3>
+        <button class="close-btn" (click)="closeClientModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar cliente..."
+          [(ngModel)]="clientSearch"
+          [ngModelOptions]="{standalone: true}"
+          (input)="filterClients()"
+          />
+          <div class="list-container">
+            @for (client of filteredClients; track client) {
+              <div
+                class="list-item"
+                (click)="selectClient(client)">
+                {{ client.nameClient }} {{ client.lastname }}
+              </div>
+            }
+            @if (filteredClients.length === 0) {
+              <div class="no-results">
+                No se encontraron clientes
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Empleados -->
+  @if (showEmployeeModal) {
+    <div class="modal-overlay" (click)="closeEmployeeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Seleccionar Empleado</h3>
+          <button class="close-btn" (click)="closeEmployeeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar empleado..."
+            [(ngModel)]="employeeSearch"
+            [ngModelOptions]="{standalone: true}"
+            (input)="filterEmployees()"
+            />
+            <div class="list-container">
+              @for (employee of filteredEmployees; track employee) {
+                <div
+                  class="list-item"
+                  (click)="selectEmployee(employee)">
+                  {{ employee.nameEmployee }} {{ employee.lastname }}
+                </div>
+              }
+              @if (filteredEmployees.length === 0) {
+                <div class="no-results">
+                  No se encontraron empleados
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Modal de Servicios -->
+    @if (showServiceModal) {
+      <div class="modal-overlay" (click)="closeServiceModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Seleccionar Servicio</h3>
+            <button class="close-btn" (click)="closeServiceModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Buscar servicio..."
+              [(ngModel)]="serviceSearch"
+              [ngModelOptions]="{standalone: true}"
+              (input)="filterServices()"
+              />
+              <div class="list-container">
+                @for (service of filteredServices; track service.code) {
+                  <div
+                    class="list-item"
+                    (click)="selectService(service)">
+                    <div class="service-list-item">
+                      <span class="service-name">{{ service.name_service }}</span>
+                      <span class="service-price">S/. {{ service.price }}</span>
+                      <span class="service-points">{{ service.points }} pts</span>
+                    </div>
+                  </div>
+                }
+                @if (filteredServices.length === 0) {
+                  <div class="no-results">
+                    No se encontraron servicios
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }

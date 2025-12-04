@@ -1,0 +1,233 @@
+<div class="billing-container">
+
+  <!-- Filtros superiores -->
+  <div class="filters-section">
+    <div class="filters-left">
+      <span class="filter-label">FILTRAR MÉTODO:</span>
+
+      <button class="filter-btn" [class.active]="paymentFilter === 'TARJETA' || paymentFilter === 'T'"
+        (click)="setPaymentFilter('TARJETA')">
+        TARJETA
+      </button>
+
+      <button class="filter-btn" [class.active]="paymentFilter === 'YAPE' || paymentFilter === 'Y'"
+        (click)="setPaymentFilter('YAPE')">
+        YAPE
+      </button>
+
+      <button class="filter-btn" [class.active]="paymentFilter === 'EFECTIVO' || paymentFilter === 'E'"
+        (click)="setPaymentFilter('EFECTIVO')">
+        EFECTIVO
+      </button>
+    </div>
+
+    <div class="filters-right">
+      <span class="filter-label">ORDENAR:</span>
+
+      <button class="filter-btn" [class.active]="sortOption === 'az'" (click)="setSortOption('az')">
+        A - Z
+      </button>
+
+      <button class="filter-btn" [class.active]="sortOption === 'za'" (click)="setSortOption('za')">
+        Z - A
+      </button>
+
+      <button class="filter-btn reset-btn" (click)="resetFilters()" title="Reiniciar filtros">
+        <i class="fas fa-redo"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+
+    @if (paginatedBillings.length === 0) {
+    <div class="no-data-message">
+      <i class="fas fa-file-invoice-dollar"></i>
+      <h3>No hay facturas</h3>
+      <p>No se encontraron facturas con los filtros aplicados.</p>
+    </div>
+    }
+
+    @for (billing of paginatedBillings; track billing.billingId) {
+    <div class="billing-card">
+
+      <!-- Header -->
+      <div class="card-header">
+        <div class="client-info">
+          <div class="client-avatar">
+            {{ billing.client.name_client[0]?.toUpperCase() }}
+          </div>
+          <div class="client-details">
+            <h3 class="client-name">
+              {{ billing.client.name_client }} {{ billing.client.lastname }}
+            </h3>
+
+            <!-- Método de pago -->
+            <div class="payment-method">
+              @if (billing.payment_method === 'T' || billing.payment_method === 'TARJETA') {
+              <span><i class="fas fa-credit-card"></i> Tarjeta</span>
+              }
+              @else if (billing.payment_method === 'Y' || billing.payment_method === 'YAPE') {
+              <span><i class="fas fa-mobile-alt"></i> Yape</span>
+              }
+              @else if (billing.payment_method === 'E' || billing.payment_method === 'EFECTIVO') {
+              <span><i class="fas fa-money-bill-wave"></i> Efectivo</span>
+              }
+              @else {
+              <span>{{ billing.payment_method }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="card-body">
+
+        <div class="info-row">
+          <i class="fas fa-user icon-teal"></i>
+          <span class="info-text">
+            Registrado por: {{ billing.user.name_user }} {{ billing.user.lastname }}
+          </span>
+        </div>
+
+        <div class="info-row">
+          <i class="fas fa-calendar icon-teal"></i>
+          <span class="info-text">
+            Fecha pago: {{ billing.date_pay | date: 'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
+
+        <div class="info-row">
+          <i class="fas fa-coins icon-teal"></i>
+          <span class="info-text">Total: S/. {{ billing.total }}</span>
+        </div>
+
+        @if (billing.reservation) {
+        <div class="info-row">
+          <i class="fas fa-bookmark icon-teal"></i>
+          <span class="info-text">
+            Reserva #{{ billing.reservation.reservationId }}
+            — Servicios: S/. {{ billing.reservation.subtotal }}
+          </span>
+        </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer">
+
+        <button class="btn btn-info" (click)="openDetailsModal(billing)">
+          Ver Detalles
+        </button>
+
+        @if (billing.status) {
+        <button class="btn btn-danger" (click)="deactivateBilling(billing.billingId)">
+          <i class="fas fa-ban"></i> Desactivar
+        </button>
+        }
+        @else {
+        <button class="btn btn-success" (click)="restoreBilling(billing.billingId)">
+          <i class="fas fa-check-circle"></i> Activar
+        </button>
+        }
+
+        <button class="btn btn-secondary" (click)="downloadPdf(billing)">
+          PDF
+        </button>
+
+      </div>
+
+    </div>
+    }
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination-container" *ngIf="filteredBillings.length > itemsPerPage">
+    <button (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
+    <span>Página {{ currentPage }} de {{ totalPages }}</span>
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages">Siguiente</button>
+  </div>
+
+  @if (showDetailsModal) {
+  <div class="modal-overlay" (click)="closeDetailsModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h3>Factura #{{ selectedBilling?.billingId }}</h3>
+        <button class="close-btn" (click)="closeDetailsModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+
+        <h4>Información General</h4>
+        <p><strong>Fecha:</strong> {{ selectedBilling?.date_pay | date: 'dd/MM/yyyy HH:mm' }}</p>
+        <p><strong>Método de pago:</strong> {{ selectedBilling?.payment_method }}</p>
+        <p><strong>Estado:</strong>
+          <span [class.active]="selectedBilling?.status">
+            {{ selectedBilling?.status ? 'Activo' : 'Anulado' }}
+          </span>
+        </p>
+
+        <hr>
+
+        <h4>Cliente</h4>
+        <p>{{ selectedBilling?.client?.name_client }} {{ selectedBilling?.client?.lastname }}</p>
+        <p>DNI/RUC: {{ selectedBilling?.client?.number_document }}</p>
+        <p>Tipo: {{ selectedBilling?.client?.type_document }}</p>
+
+        <hr>
+
+        <h4>Usuario</h4>
+        <p>{{ selectedBilling?.user?.name_user }} {{ selectedBilling?.user?.lastname }}</p>
+
+        <hr>
+
+        <h4>Reserva</h4>
+
+        @if (selectedBilling?.reservation) {
+        <p><strong>ID Reserva:</strong> {{ selectedBilling?.reservation?.reservationId }}</p>
+        <p><strong>Fecha servicio:</strong>
+          {{ selectedBilling?.reservation?.service_date | date: 'dd/MM/yyyy HH:mm' }}
+        </p>
+        <p><strong>Subtotal reserva:</strong> S/. {{ selectedBilling?.reservation?.subtotal }}</p>
+        } @else {
+        <p>Esta factura no contiene reserva.</p>
+        }
+
+        <hr>
+
+        <h4>Productos</h4>
+
+        @if (selectedBilling?.billingDetail!.length > 0) {
+        <ul class="products-list">
+          @for (d of selectedBilling?.billingDetail; track $index) {
+          <li>
+            <strong>{{ d.name_product }}</strong><br>
+            {{ d.description }}<br>
+            Cantidad: {{ d.amount }}<br>
+            Precio Unit.: S/. {{ d.priceSale }}<br>
+            Subtotal: <strong>S/. {{ d.subtotal }}</strong>
+          </li>
+          }
+        </ul>
+        } @else {
+        <p>No se agregaron productos.</p>
+        }
+
+        <hr>
+
+        <h3 style="text-align: right;">TOTAL: S/. {{ selectedBilling?.total }}</h3>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDetailsModal()">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+  }
+
+
+</div>

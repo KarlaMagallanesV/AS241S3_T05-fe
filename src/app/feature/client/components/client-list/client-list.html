@@ -1,0 +1,211 @@
+<div class="table-container">
+  <!-- Filtros superiores -->
+  <div class="filters-section">
+    <div class="filters-left">
+      <span class="filter-label">FILTRAR:</span>
+
+      <button class="filter-btn" [class.active]="frequencyFilter === 'N'" (click)="setFrequencyFilter('N')">
+        NUEVO
+      </button>
+      <button class="filter-btn" [class.active]="frequencyFilter === 'F'" (click)="setFrequencyFilter('F')">
+        FIEL
+      </button>
+      <button class="filter-btn" [class.active]="frequencyFilter === 'H'" (click)="setFrequencyFilter('H')">
+        HABITUAL
+      </button>
+      <button class="filter-btn" [class.active]="frequencyFilter === 'O'" (click)="setFrequencyFilter('O')">
+        OCASIONAL
+      </button>
+
+      <button class="filter-btn check-btn" [class.active]="statusFilter === 'A'" (click)="toggleStatusFilter('A')">
+        <i class="fas fa-check"></i>
+      </button>
+      <button class="filter-btn times-btn" [class.active]="statusFilter === 'I'" (click)="toggleStatusFilter('I')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="filters-right">
+      <span class="filter-label">ORDENAR:</span>
+
+      <button class="filter-btn" [class.active]="sortOrder === 'az'" (click)="setSortOrder('az')">
+        A - Z
+      </button>
+      <button class="filter-btn" [class.active]="sortOrder === 'za'" (click)="setSortOrder('za')">
+        Z - A
+      </button>
+
+      <div class="birthday-filter">
+        <button class="filter-btn"
+          [class.active]="birthdayMonthFilter !== ''"
+          (click)="toggleBirthdayFilter()">
+          CUMPLEAÑOS
+        </button>
+        @if (showBirthdayDropdown) {
+          <div class="birthday-dropdown">
+            @for (month of months; track month) {
+              <div class="dropdown-item"
+                (click)="selectMonth(month.value)">
+                {{ month.label }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <button class="filter-btn reset-btn" (click)="resetFilters()" title="Reiniciar filtros">
+        <i class="fas fa-redo"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de clientes -->
+  <div class="table-wrapper">
+    <table class="clients-table">
+      <thead>
+        <tr>
+          <th>T DOC</th>
+          <th>N° DOCUMENTO</th>
+          <th>NOMBRES</th>
+          <th>APELLIDOS</th>
+          <th>CELULAR</th>
+          <th>CUMPLEAÑOS</th>
+          <th>ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (client of paginatedClients; track client) {
+          <tr [class.highlighted]="highlightedClientId === client.id">
+            <td>{{ client.typeDocument }}</td>
+            <td>{{ client.numberDocument }}</td>
+            <td>{{ client.nameClient }}</td>
+            <td>{{ client.lastname }}</td>
+            <td>{{ client.cellphone }}</td>
+            <td>{{ client.birthday | date: 'dd/MM/yyyy' }}</td>
+            <td class="actions-cell">
+              <button class="action-btn view-btn" (click)="viewClient(client)" title="Ver">
+                <i class="fas fa-eye"></i>
+              </button>
+              @if (client.status === 'A') {
+                <button class="action-btn edit-btn" (click)="editClient(client)" title="Editar">
+                  <i class="fas fa-edit"></i>
+                </button>
+              }
+              <button class="action-btn toggle-btn" (click)="toggleStatus(client)" title="Cambiar estado">
+                <i class="fas fa-power-off"></i>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination-section">
+    <span class="pagination-info">{{ getPageInfo() }}</span>
+
+    <div class="pagination-controls">
+      <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <span class="page-number">page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL DE VISTA/EDICIÓN -->
+  @if (showModal) {
+    <div class="modal" (click)="closeModal($event)">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <span class="close-btn" (click)="closeModal($event)">×</span>
+        <h2>{{ isViewMode ? "Información del Cliente" : "Editar Cliente" }}</h2>
+        <form [formGroup]="clientForm" (ngSubmit)="saveChanges()">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tipo de Documento</label>
+              <input formControlName="typeDocument" [readonly]="true" />
+            </div>
+            <div class="form-group">
+              <label>Número de Documento</label>
+              <input formControlName="numberDocument" [readonly]="true" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombres</label>
+              <input formControlName="nameClient" [readonly]="isViewMode" />
+            </div>
+            <div class="form-group">
+              <label>Apellidos</label>
+              <input formControlName="lastname" [readonly]="isViewMode" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Celular</label>
+              <input formControlName="cellphone" [readonly]="isViewMode" />
+            </div>
+            <div class="form-group">
+              <label>Fecha de Nacimiento</label>
+              <input type="date" formControlName="birthday" [readonly]="isViewMode" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input formControlName="email" [readonly]="isViewMode" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Distrito</label>
+              <select formControlName="ubigeoCode" [disabled]="isViewMode">
+                <option value="">Seleccione un distrito</option>
+                @for (ubigeo of ubigeos; track ubigeo) {
+                  <option [value]="ubigeo.code">
+                    {{ ubigeo.district }}
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Día de registro</label>
+              <input type="date" formControlName="registrationDate" [readonly]="true" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Frecuencia</label>
+              <select formControlName="visitFrequency" [disabled]="isViewMode">
+                <option value="N">Cliente Nuevo</option>
+                <option value="F">Cliente Fiel</option>
+                <option value="O">Cliente Ocasional</option>
+                <option value="H">Cliente Habitual</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Puntos</label>
+              <input type="number" formControlName="points" [readonly]="isViewMode" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Estado</label>
+            <input formControlName="status" [readonly]="true" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Imagen (URL)</label>
+              <input formControlName="imageUrl" [readonly]="isViewMode" />
+            </div>
+          </div>
+          @if (!isViewMode) {
+            <div class="button-container">
+              <button type="submit" class="btn-save">Actualizar</button>
+            </div>
+          }
+        </form>
+      </div>
+    </div>
+  }
+</div>

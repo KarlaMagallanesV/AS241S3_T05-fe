@@ -1,0 +1,205 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");
+
+$primary-green: #80A7A3;
+$dark-green: #5c8d89;
+$soft-pink: #F4A1A1;
+$dark-pink: #d98282;
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    padding: 0;
+}
+
+.employee-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border: 2px solid transparent;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        border-color: $primary-green;
+    }
+
+    &.inactive {
+        opacity: 0.6;
+        background: #f5f5f5;
+    }
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+
+    .employee-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+        flex: 1;
+    }
+
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: #FFEBEE;
+        color: #D32F2F;
+
+        &.active {
+            background: #E8F5E9;
+            color: #4CAF50;
+        }
+    }
+}
+
+.card-body {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.employee-avatar {
+    flex-shrink: 0;
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 3px solid $primary-green;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.employee-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: #555;
+
+        i {
+            color: $primary-green;
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+        }
+
+        span {
+            flex: 1;
+            word-break: break-word;
+        }
+    }
+}
+
+.card-footer {
+    display: flex;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 2px solid #f0f0f0;
+
+    .card-btn {
+        flex: 1;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        &.toggle-btn {
+            background: #FFEBEE;
+            color: #D32F2F;
+            flex: 0 0 auto;
+            width: 44px;
+            padding: 10px;
+
+            i {
+                font-size: 16px;
+            }
+
+            &:hover {
+                background: #D32F2F;
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
+            }
+
+            &.restore-btn {
+                background: #E8F5E9;
+                color: #4CAF50;
+
+                &:hover {
+                    background: #4CAF50;
+                    color: white;
+                    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+                }
+            }
+        }
+
+        &.edit-btn {
+            background: linear-gradient(135deg, $primary-green, $dark-green);
+            color: white;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba($primary-green, 0.4);
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .card-body {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .employee-avatar {
+        width: 120px;
+        height: 120px;
+    }
+
+    .employee-info {
+        width: 100%;
+
+        .info-item {
+            justify-content: center;
+        }
+    }
+}

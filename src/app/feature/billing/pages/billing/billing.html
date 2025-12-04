@@ -1,0 +1,74 @@
+@if (isLoading) {
+  <app-loading-animation></app-loading-animation>
+}
+
+<div class="app-container">
+  <div class="main-content-container">
+    <div class="content-container">
+
+      <header class="header">
+        <h1>FACTURAS</h1>
+
+        <div class="header-actions">
+
+          <!-- Búsqueda -->
+          <div class="search-container">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Buscar por cliente o empleado..."
+              [(ngModel)]="searchTerm"
+              (input)="billingsListComponent.applySearch(searchTerm)"
+            />
+
+            @if (searchTerm) {
+              <button
+                type="button"
+                class="clear-search-btn"
+                title="Limpiar búsqueda"
+                (click)="searchTerm=''; billingsListComponent.applySearch('')">
+                <i class="fas fa-times"></i>
+              </button>
+            }
+          </div>
+
+          <!-- Botón para exportar PDF general (placeholder) -->
+          <button type="button" class="btn-export-pdf">
+            <i class="fas fa-download"></i>
+            EXPORTAR PDF
+          </button>
+
+          <!-- Botón para nueva factura -->
+          <button type="button" class="btn-add-reservation" (click)="openNewBilling()">
+            <i class="fas fa-plus"></i>
+            NUEVA FACTURA
+          </button>
+
+        </div>
+      </header>
+
+      <section class="content">
+        <app-billing-list></app-billing-list>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DEL FORMULARIO -->
+@if (showForm) {
+  <div class="modal-overlay" (click)="onModalBackdropClick($event)">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+
+      <button class="modal-close-btn" (click)="onFormCancelled()">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <app-billing-form
+        (saved)="onFormSaved()"
+        (cancelled)="onFormCancelled()">
+      </app-billing-form>
+
+    </div>
+  </div>
+}

@@ -1,0 +1,34 @@
+<div class="table-container">
+  <div class="table-wrapper">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>NOMBRES</th>
+            <th>APELLIDOS</th>
+            <th>FRECUENCIA</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (client of paginatedClients; track client) {
+            <tr>
+              <td>{{ client.id }}</td>
+              <td>{{ client.nameClient }}</td>
+              <td>{{ client.lastname }}</td>
+              <td>
+                {{
+                client.visitFrequency === 'F'
+                ? 'Cliente Fiel'
+                : client.visitFrequency === 'O'
+                ? 'Cliente Ocasional'
+                : 'Cliente Nuevo'
+                }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

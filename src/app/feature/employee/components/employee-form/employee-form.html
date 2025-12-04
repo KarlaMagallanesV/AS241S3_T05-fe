@@ -1,0 +1,135 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
+  <h3 class="step-title">INFORMACIÓN DEL EMPLEADO</h3>
+
+  <!-- Contenedor principal con grid -->
+  <div class="step-content-wrapper">
+    <!-- Columna izquierda: Formulario -->
+    <div class="form-fields">
+      <!-- Nombres -->
+      <div class="form-group">
+        <label for="firstName">NOMBRES DEL EMPLEADO</label>
+        <input id="firstName" type="text" formControlName="firstName" (keydown)="onlyLetters($event)">
+        @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+          <div class="error">
+            @if (form.get('firstName')?.hasError('required')) {
+              <span>Los nombres son obligatorios</span>
+            }
+            @if (form.get('firstName')?.hasError('pattern')) {
+              <span>Solo se permiten letras</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Apellidos -->
+      <div class="form-group">
+        <label for="lastName">APELLIDOS</label>
+        <input id="lastName" type="text" formControlName="lastName" (keydown)="onlyLetters($event)">
+        @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+          <div class="error">
+            @if (form.get('lastName')?.hasError('required')) {
+              <span>Los apellidos son obligatorios</span>
+            }
+            @if (form.get('lastName')?.hasError('pattern')) {
+              <span>Solo se permiten letras</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Correo Electrónico -->
+      <div class="form-group">
+        <label for="email">CORREO ELECTRONICO</label>
+        <input id="email" type="text" formControlName="email">
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+          <div class="error">
+            @if (form.get('email')?.hasError('required')) {
+              <span>El correo es obligatorio</span>
+            }
+            @if (form.get('email')?.hasError('email')) {
+              <span>El formato del correo no es válido</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Celular y Turno -->
+      <div class="form-group-row">
+        <div class="form-group">
+          <label for="phoneNumber">N° DE CELULAR</label>
+          <input
+            id="phoneNumber"
+            type="text"
+            formControlName="phoneNumber"
+            (keydown)="onlyNumbers($event)"
+            maxlength="9"
+            placeholder="9 dígitos">
+            @if (form.get('phoneNumber')?.invalid && form.get('phoneNumber')?.touched) {
+              <div class="error">
+                @if (form.get('phoneNumber')?.hasError('required')) {
+                  <span>El celular es obligatorio</span>
+                }
+                @if (form.get('phoneNumber')?.hasError('pattern')) {
+                  <span>Debe tener 9 dígitos y comenzar con 9</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="workShift">TURNO DE TRABAJO</label>
+            <select id="workShift" formControlName="workShift">
+              <option value="M">Mañana</option>
+              <option value="T">Tarde</option>
+              <option value="N">Noche</option>
+            </select>
+            @if (form.get('workShift')?.invalid && form.get('workShift')?.touched) {
+              <div class="error">
+                <span>El turno es obligatorio</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: Foto de perfil -->
+      <div class="photo-section">
+        <p class="photo-label-top">FOTO DE PERFIL</p>
+        <div class="photo-upload">
+          <img [src]="photoPreview || 'https://placehold.co/120x120'" alt="Foto de perfil" class="photo-preview">
+          <label for="photoInput" class="photo-button">
+            <i class="fas fa-camera"></i>
+          </label>
+          <input
+            type="file"
+            id="photoInput"
+            accept="image/*"
+            (change)="onPhotoSelected($event)"
+            style="display: none;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Imagen decorativa -->
+      <div class="decorative-image">
+        <img src="/chica-spa.png" alt="Decoración">
+      </div>
+
+      <!-- Botones -->
+      <div class="action-buttons">
+        <button type="button" class="btn-secondary" (click)="onCancel()">
+          CANCELAR
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || isUploading">
+          @if (!isUploading && !employee) {
+            <span>REGISTRAR NUEVO EMPLEADO →</span>
+          }
+          @if (!isUploading && employee) {
+            <span>GUARDAR CAMBIOS</span>
+          }
+          @if (isUploading) {
+            <span>SUBIENDO...</span>
+          }
+        </button>
+      </div>
+    </form>

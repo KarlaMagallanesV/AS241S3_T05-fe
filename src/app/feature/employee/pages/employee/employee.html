@@ -1,0 +1,120 @@
+<div class="app-container">
+  <div class="main-content-container">
+    <div class="content-container">
+      <header class="header">
+        <h1>EMPLEADOS</h1>
+
+        <div class="header-actions">
+          <!-- Barra de búsqueda -->
+          <div class="search-container">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Buscar por nombre, apellido o teléfono..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearch()"
+              />
+              <button class="search-button" (click)="onSearch()">
+                <i class="fas fa-search"></i>
+              </button>
+              @if (searchTerm) {
+                <button
+                  class="clear-search-btn"
+                  (click)="clearSearch()"
+                  title="Limpiar búsqueda"
+                  >
+                  <i class="fas fa-times"></i>
+                </button>
+              }
+            </div>
+
+            <!-- Botón para mostrar formulario modal -->
+            <button class="btn-add-employee" (click)="onCreateNew()">
+              <i class="fas fa-plus"></i>
+              AGREGAR EMPLEADO
+            </button>
+
+            <!-- Botón de notificaciones -->
+            <button class="btn-notification" title="Notificaciones">
+              <i class="fas fa-bell"></i>
+            </button>
+
+            <!-- Botón de perfil con nombre -->
+            <button class="btn-profile" title="Perfil">
+              <i class="fas fa-user-circle"></i>
+              <span class="profile-name">Nire</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Filtros -->
+        <div class="filters-section">
+          <div class="filters-left">
+            <span class="filter-label">FILTRAR:</span>
+
+            <button class="filter-btn check-btn" [class.active]="statusFilter === 'A'" (click)="toggleStatusFilter('A')">
+              <i class="fas fa-check"></i>
+            </button>
+            <button class="filter-btn times-btn" [class.active]="statusFilter === 'I'" (click)="toggleStatusFilter('I')">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="filters-right">
+            <span class="filter-label">ORDENAR:</span>
+
+            <button class="filter-btn" [class.active]="sortOrder === 'az'" (click)="setSortOrder('az')">
+              A - Z
+            </button>
+            <button class="filter-btn" [class.active]="sortOrder === 'za'" (click)="setSortOrder('za')">
+              Z - A
+            </button>
+
+            <button class="filter-btn reset-btn" (click)="resetFilters()" title="Reiniciar filtros">
+              <i class="fas fa-redo"></i>
+            </button>
+          </div>
+        </div>
+
+        <section class="content">
+          <!-- Lista de empleados en cards -->
+          <app-employee-list
+            [employees]="paginatedEmployees"
+            (edit)="onEditEmployee($event)"
+            (toggle)="onToggleStatus($event)">
+          </app-employee-list>
+
+          <!-- Paginación -->
+          <div class="pagination-section">
+            <span class="pagination-info">{{ getPageInfo() }}</span>
+
+            <div class="pagination-controls">
+              <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <span class="page-number">page {{ currentPage }} of {{ totalPages }}</span>
+              <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DEL FORMULARIO -->
+  @if (showForm) {
+    <div class="modal-overlay" (click)="onModalBackdropClick($event)">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        <button class="modal-close-btn" (click)="onFormCancelled()">
+          <i class="fas fa-times"></i>
+        </button>
+        <app-employee-form
+          [employee]="selectedEmployee"
+          (saved)="onFormSaved()"
+          (cancelled)="onFormCancelled()">
+        </app-employee-form>
+      </div>
+    </div>
+  }

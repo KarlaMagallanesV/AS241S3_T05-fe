@@ -1,0 +1,68 @@
+@if (isLoading) {
+  <app-loading-animation></app-loading-animation>
+}
+<div class="app-container">
+  <div class="main-content-container">
+    <div class="content-container">
+      <!-- Encabezado -->
+      <header class="header">
+        <h1>SERVICIOS OFRECIDOS</h1>
+        <div class="header-actions">
+          <div class="search-container">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Buscar por nombre o código"
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()"/>
+              <button class="search-button" (click)="onSearchChange()">
+                <i class="fas fa-search"></i>
+              </button>
+              @if (searchTerm) {
+                <button
+                  class="clear-search-btn"
+                  (click)="clearSearch()"
+                  title="Limpiar búsqueda">
+                  <i class="fas fa-times"></i>
+                </button>
+              }
+            </div>
+            <button class="btn-export-pdf" (click)="exportPdf()">
+              <i class="fas fa-download"></i>
+              EXPORTAR PDF
+            </button>
+            <button class="btn-add-service" (click)="onCreateNew()">
+              <i class="fas fa-plus"></i>
+              AGREGAR SERVICIO
+            </button>
+            <button class="btn-notification" title="Notificaciones">
+              <i class="fas fa-bell"></i>
+            </button>
+            <button class="btn-profile"  title="Perfil">
+              <i class="fas fa-user-circle"></i>
+              <span class="profile-name">Nire</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Contenido -->
+        <section class="content">
+          <app-service-list #serviceListComponent></app-service-list>
+        </section>
+      </div>
+    </div>
+  </div>
+  @if (showForm) {
+    <div class="modal-overlay" (click)="onModalBackdropClick($event)">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        <button class="modal-close-btn" (click)="onFormCancelled()">
+          <i class="fas fa-times"></i>
+        </button>
+        <app-service-form
+          [service]="selectedService"
+          (saved)="onFormSaved()"
+          (cancelled)="onFormCancelled()">
+        </app-service-form>
+      </div>
+    </div>
+  }

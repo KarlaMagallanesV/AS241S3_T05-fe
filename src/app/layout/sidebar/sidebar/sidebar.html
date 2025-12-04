@@ -1,0 +1,103 @@
+<div class="sidebar" [class.expanded]="isExpanded" [class.minimized]="!isExpanded">
+
+    <!-- Botón toggle en la parte superior -->
+    <button class="toggle-btn-top" (click)="toggleSidebar()">
+        <img 
+            [src]="isExpanded ? 'icons/cerrar.png' : 'icons/abrir.png'" 
+            [alt]="isExpanded ? 'Cerrar' : 'Abrir'" 
+            class="toggle-icon-top" 
+        />
+    </button>
+
+    <!-- Header con perfil -->
+    <div class="user-profile">
+        <img [src]="userData.avatar" alt="Usuario" class="avatar" />
+        @if (isExpanded) {
+        <div class="user-info">
+            <span class="user-greeting">{{ userData.greeting }}</span>
+            <span class="user-name">{{ userData.userName }}</span>
+            <span class="user-email">{{ userData.email }}</span>
+        </div>
+        }
+    </div>
+
+    <!-- Menú principal -->
+    <nav class="menu-container">
+        <ul class="menu">
+            @if (isExpanded) { <div class="group-title">Clientes y Reservaciones</div> }
+            <div class="menu-separator"></div>
+            <li routerLink="." [class.active]="isActive('.')" class="menu-item">
+                <img src="icons/home.png" alt="Dashboard" class="menu-icon" />
+                @if (isExpanded) { <span class="menu-text">DASHBOARD</span> }
+            </li>
+
+            <li routerLink="clients" [class.active]="isActive('/clients')" class="menu-item">
+                    <img src="icons/client-2.png" alt="Clientes" class="menu-icon" />
+                    @if (isExpanded) { <span class="menu-text">CLIENTES</span> }
+            </li>
+
+            <li routerLink="reservations" [class.active]="isActive('/reservations')" class="menu-item">
+                <img src="icons/reservation-2.png" alt="Reservas" class="menu-icon" />
+                @if (isExpanded) { <span class="menu-text">RESERVAS</span> }
+            </li>
+
+            @if (isExpanded) { <div class="group-title">Servicios y Productos</div> }
+            <div class="menu-separator"></div>
+
+            <li routerLink="services" [class.active]="isActive('/services')" class="menu-item">
+                <img src="icons/service-2.png" alt="Servicios" class="menu-icon" />
+                @if (isExpanded) { <span class="menu-text">SERVICIOS</span> }
+            </li>
+
+            <li routerLink="products" [class.active]="isActive('/products')" class="menu-item">
+                <img src="icons/product-2.png" alt="Productos" class="menu-icon" />
+                @if (isExpanded) { <span class="menu-text">PRODUCTOS</span> }
+            </li>
+
+            @if (isExpanded) { <div class="group-title">Usuarios y Proveedores</div> }
+            <div class="menu-separator"></div>
+
+            <li routerLink="users" [class.active]="isActive('/users')" class="menu-item">
+                <img src="icons/user-2.png" alt="Gestión de Usuarios" class="menu-icon" />
+                @if (isExpanded) { <span class="menu-text">GESTIÓN DE USUARIOS</span> }
+            </li>
+
+            <li routerLink="employee" [class.active]="isActive('/employee')" class="menu-item">
+                <img src="icons/employee.png" alt="Gestión de Empleados" class="menu-icon" />
+                @if (isExpanded) { <span class="menu-text">GESTIÓN DE EMPLEADOS</span> }
+            </li>
+
+            <li routerLink="suppliers" [class.active]="isActive('/suppliers')" class="menu-item">
+                <img src="icons/supplier-2.png" alt="Gestión de Proveedores" class="menu-icon" />
+                @if (isExpanded) { <span class="menu-text">PROVEEDORES</span> }
+            </li>
+
+            @if (isExpanded) { <div class="group-title">Facturación y Reportes</div> }
+            <div class="menu-separator"></div>
+
+            <!-- Reportes -->
+            <li routerLink="reports" [class.active]="isActive('/reports')" class="menu-item reports">
+                <img src="icons/report-2.png" alt="Reportes" class="menu-icon" />
+                @if (isExpanded) { <span class="menu-text">REPORTES</span> }
+            </li>
+
+            <!-- Datos -->
+            <li routerLink="billing" [class.active]="isActive('/billing')" class="menu-item data">
+                <img src="icons/data-2.png" alt="Facturas" class="menu-icon" />
+                @if (isExpanded) { <span class="menu-text">Facturación</span> }
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+        <button class="logout-btn" routerLink="/auth/login" (click)="outsession()">
+            <img src="icons/exit.png" alt="Cerrar Sesión" class="logout-icon" />
+            @if (isExpanded) { <span>CERRAR SESIÓN</span> }
+        </button>
+    </div>
+</div>
+
+@if (isExpanded && isMobile) {
+<div class="sidebar-overlay" (click)="closeSidebar()"></div>
+}

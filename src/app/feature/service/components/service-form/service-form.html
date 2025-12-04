@@ -1,0 +1,192 @@
+<form [formGroup]="form" (ngSubmit)="onSave()" class="form-container" autocomplete="off">
+
+  <div class="form-header">
+    <h2>INFORMACIÓN DEL SERVICIO</h2>
+  </div>
+
+  <div class="form-body">
+
+    <div class="form-fields-column">
+
+      <div class="form-group-row">
+        <div class="form-group">
+          <label for="code">CÓDIGO</label>
+          <input id="code" type="text" formControlName="code" readOnly="true" />
+        </div>
+        <div class="form-group">
+          <label for="category">CATEGORÍA</label>
+          <select id="category" formControlName="category">
+            <option value="CC">Cabello (hombre)</option>
+            <option value="CM">Manicure (hombre)</option>
+            <option value="CP">Pedicure (hombre)</option>
+            <option value="CR">Facial (hombre)</option>
+            <option value="DC">Cabello (mujer)</option>
+            <option value="DM">Manicure (mujer)</option>
+            <option value="DP">Pedicure (mujer)</option>
+            <option value="DR">Facial (mujer)</option>
+            <option value="DD">Depilación (mujer)</option>
+          </select>
+          @if (form.get('category')?.invalid && form.get('category')?.touched) {
+            <div class="error">
+              <span>La categoria del servicio es importante</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="nameService">NOMBRE DEL SERVICIO</label>
+        <input id="nameService" type="text" formControlName="nameService" maxlength="50"
+          (keydown)="onlyLetters($event)" placeholder="Nombre completo">
+          @if (form.get('nameService')?.invalid && form.get('nameService')?.touched) {
+            <div class="error">
+              @if (form.get('nameService')?.hasError('required')) {
+                <span>Los nombres de los servicios son
+                obligatorios</span>
+              }
+              @if (form.get('nameService')?.hasError('pattern')) {
+                <span>Solo se permiten letras y algunos
+                simbolos (/ () . -), no se permiten espacios en blanco ni simbolos al comienzo</span>
+              }
+              @if (form.get('nameService')?.hasError('minlength')) {
+                <span>Mínimo 3 caracteres</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="descriptionService">DESCRIPCIÓN DEL SERVICIO</label>
+          <textarea id="descriptionService" formControlName="descriptionService" maxlength="500"
+          (keydown)="onlyLettersAndSymbol($event)" placeholder="Descripción del servicio"></textarea>
+          @if (form.get('descriptionService')?.invalid && form.get('descriptionService')?.touched) {
+            <div class="error"
+              >
+              @if (form.get('descriptionService')?.hasError('pattern')) {
+                <span>No se permiten espacios en blanco
+                al comienzo</span>
+              }
+              @if (form.get('descriptionService')?.hasError('minlength')) {
+                <span>Mínimo 3 caracteres</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-group-row triple-row">
+          <div class="form-group">
+            <label for="price">PRECIO</label>
+            <input id="price" type="text" formControlName="price" (keydown)="onlyPrice($event, price.value)"
+              placeholder="Precio del servicio" #price maxlength="7" max="999">
+              @if (form.get('price')?.invalid && form.get('price')?.touched) {
+                <div class="error">
+                  @if (form.get('price')?.hasError('required')) {
+                    <span>El precio es obligatorio</span>
+                  }
+                  @if (form.get('price')?.hasError('min')) {
+                    <span>El precio debe ser igual o mayor a 10
+                    soles</span>
+                  }
+                  @if (form.get('price')?.hasError('pattern')) {
+                    <span class="error">Solo se aceptan valores
+                    numericos no mayor a 999.99 y con 2 decimales como máximo</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="duration">DURACIÓN</label>
+              <input id="duration" type="number" formControlName="duration" placeholder="Minutos" min="1">
+              @if (form.get('duration')?.invalid && form.get('duration')?.touched) {
+                <div class="error">
+                  @if (form.get('duration')?.hasError('required')) {
+                    <span>La duración es obligatoria</span>
+                  }
+                  @if (form.get('duration')?.hasError('min')) {
+                    <span>Mínimo 1 minuto</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="points">PUNTOS</label>
+              <input id="points" type="number" formControlName="points" placeholder="Puntos a ganar" min="0">
+              @if (form.get('points')?.invalid && form.get('points')?.touched) {
+                <div class="error">
+                  @if (form.get('points')?.hasError('required')) {
+                    <span>Los puntos son obligatorios</span>
+                  }
+                  @if (form.get('points')?.hasError('min')) {
+                    <span>Mínimo 0 puntos</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="form-group-row">
+            <div class="form-group">
+              <label for="status">ESTADO</label>
+              <input id="status" type="text" formControlName="status" value="ACTIVO" readOnly="true" />
+            </div>
+
+            <div class="form-group">
+              <label for="registration_date">F. REGISTRO</label>
+              <div class="date-input-container">
+                <input id="registration_date" type="datetime-local" formControlName="registration_date"
+                  readonly>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="illustration-column">
+
+            <div class="image-placeholder">
+              <h3>IMAGEN DE REFERENCIA</h3>
+              <div class="image-box" [class.has-image]="imagePreviewUrl">
+
+                <input type="file" id="imageUpload" accept="image/*" (change)="onFileSelected($event)"
+                  style="display: none;">
+
+                  @if (imagePreviewUrl && !isUploading) {
+                    <img [src]="imagePreviewUrl"
+                      alt="Previsualización del servicio">
+                  }
+
+                  <div class="upload-overlay">
+
+                    @if (isUploading) {
+                      <div class="spinner"></div>
+                    }
+                    @if (isUploading) {
+                      <span class="loading-text">Cargando...</span>
+                    }
+
+                    @if (!isUploading) {
+                      <label for="imageUpload" class="upload-label">
+                        {{ imagePreviewUrl ? 'Cambiar imagen' : '+ Cargar Imagen' }}
+                      </label>
+                    }
+                  </div>
+                </div>
+
+                <input type="hidden" formControlName="image_url">
+              </div>
+
+              <div class="illustration-placeholder">
+              </div>
+
+              <div class="action-buttons">
+                <button type="button" class="cancelar">CANCELAR</button>
+                @if (!service?.code) {
+                  <button type="submit" class="crear">CREAR</button>
+                }
+              </div>
+            </div>
+
+          </div>
+        </form>

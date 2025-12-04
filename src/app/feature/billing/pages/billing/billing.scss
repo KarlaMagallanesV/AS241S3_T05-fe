@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+$primary-green: #80A7A3;
+$dark-green: #5c8d89;
+$soft-pink: #F4A1A1;
+$dark-pink: #d98282;
+
+:host {
+  font-family: 'Inter', sans-serif;
+  color: #2e2e2e;
+}
+
+/* =========================================
+   APP WRAPPER
+========================================= */
+.app-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.main-content-container {
+  margin-left: 90px;
+  width: 100%;
+  transition: margin-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+}
+
+.content-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* =========================================
+   HEADER ESTILIZADO
+========================================= */
+.header {
+  background: white;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 70px;
+  border-bottom: 1px solid #e5e5e5;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  gap: 20px;
+
+  h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #333;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+
+  /* ---------- SEARCH BAR ---------- */
+  .search-container {
+    position: relative;
+
+    .search-input {
+      width: 230px;
+      padding: 10px 40px 10px 16px;
+      border-radius: 12px;
+      border: 2px solid #e0e0e0;
+      background: #fafafa;
+      font-size: 13px;
+      transition: all 0.25s ease;
+
+      &:focus {
+        border-color: $primary-green;
+        background: white;
+        box-shadow: 0 0 0 3px rgba($primary-green, .15);
+      }
+    }
+
+    .clear-search-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #999;
+      transition: 0.2s;
+
+      &:hover {
+        color: $dark-green;
+      }
+
+      i {
+        font-size: 14px;
+      }
+    }
+  }
+
+  /* ---------- BOTÓN EXPORTAR ---------- */
+  .btn-export-pdf {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 2px solid #e5e5e5;
+    background: white;
+    color: #555;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: #fafafa;
+      border-color: $primary-green;
+      color: $primary-green;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+  }
+
+  /* ---------- BOTÓN NUEVA FACTURA ---------- */
+  .btn-add-reservation {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, $soft-pink, $dark-pink);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba($soft-pink, 0.35);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba($soft-pink, 0.45);
+    }
+
+    &:active {
+      transform: translateY(0px);
+    }
+  }
+}
+
+/* =========================================
+   CONTENT
+========================================= */
+.content {
+  flex: 1;
+  background: #f5f5f5;
+  padding: 10px 20px;
+  overflow-y: auto;
+}
+
+/* =========================================
+   MODAL – FORMULARIO FACTURA
+========================================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  z-index: 5000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-container {
+  position: relative;
+  background: white;
+  border-radius: 20px;
+  padding: 0;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  width: 92%;
+  max-width: 780px;
+  animation: slideUp 0.3s ease;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba($primary-green, .5);
+    border-radius: 4px;
+  }
+}
+
+/* ---------- CLOSE BUTTON ---------- */
+.modal-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #ff6b6b, #ff5252);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 100, 100, .45);
+  transition: all 0.25s ease;
+
+  &:hover {
+    transform: scale(1.15) rotate(90deg);
+  }
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- SWEET ALERT FIX ---------- */
+:root { --swal2-z-index: 10000; }
+.swal2-container { z-index: 10000 !important; }
+.swal2-popup { z-index: 10001 !important; }
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+@media (max-width: 900px) {
+  .search-container .search-input {
+    width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content-container {
+    margin-left: 0;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    text-align: center;
+
+    .header-actions {
+      width: 100%;
+      flex-direction: column;
+    }
+
+    .search-container {
+      width: 100%;
+
+      .search-input {
+        width: 100%;
+      }
+    }
+
+    .btn-export-pdf,
+    .btn-add-reservation {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .modal-container {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 20px;
+  }
+  .content {
+    padding: 10px;
+  }
+}

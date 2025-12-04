@@ -1,0 +1,153 @@
+<form [formGroup]="form" (ngSubmit)="onSave()" class="form-container" autocomplete="off">
+
+  <div class="form-header">
+    <h2>INFORMACIÓN DEL PRODUCTO</h2>
+  </div>
+
+  <div class="form-body">
+
+    <div class="form-fields-column">
+
+      <div class="form-group">
+        <label for="nameProduct">NOMBRE DEL PRODUCTO</label>
+        <input id="nameProduct" type="text" formControlName="nameProduct" maxlength="50" (keydown)="onlyLetters($event)"
+          placeholder="Nombre completo">
+        @if (form.get('nameProduct')?.invalid && form.get('nameProduct')?.touched) {
+        <div class="error">
+          @if (form.get('nameProduct')?.hasError('required')) {
+          <span>Los nombres de los servicios son
+            obligatorios</span>
+          }
+          @if (form.get('nameProduct')?.hasError('pattern')) {
+          <span>Solo se permiten letras y algunos
+            simbolos (/ () . -), no se permiten espacios en blanco ni simbolos al comienzo</span>
+          }
+          @if (form.get('nameProduct')?.hasError('minlength')) {
+          <span>Mínimo 3 caracteres</span>
+          }
+        </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="descriptionProduct">DESCRIPCIÓN DEL PRODUCTO</label>
+        <textarea id="descriptionProduct" formControlName="descriptionProduct" maxlength="500"
+          (keydown)="onlyLettersAndSymbol($event)" placeholder="Descripción del servicio"></textarea>
+        @if (form.get('descriptionProduct')?.invalid && form.get('descriptionProduct')?.touched) {
+        <div class="error">
+          @if (form.get('descriptionProduct')?.hasError('pattern')) {
+          <span>No se permiten espacios en blanco
+            al comienzo</span>
+          }
+          @if (form.get('descriptionProduct')?.hasError('minlength')) {
+          <span>Mínimo 3 caracteres</span>
+          }
+        </div>
+        }
+      </div>
+
+      <div class="form-group-row triple-row">
+        <div class="form-group">
+          <label for="salePrice">PRECIO</label>
+          <input id="salePrice" type="text" formControlName="salePrice" (keydown)="onlyPrice($event, salePrice.value)"
+            placeholder="Precio" #salePrice maxlength="7" max="999">
+          @if (form.get('salePrice')?.invalid && form.get('salePrice')?.touched) {
+          <div class="error">
+            @if (form.get('salePrice')?.hasError('required')) {
+            <span>El precio es obligatorio</span>
+            }
+            @if (form.get('salePrice')?.hasError('min')) {
+            <span>El precio debe ser igual o mayor a 10
+              soles</span>
+            }
+            @if (form.get('salePrice')?.hasError('pattern')) {
+            <span class="error">Solo se aceptan valores
+              numericos no mayor a 999.99 y con 2 decimales como máximo</span>
+            }
+          </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="stock">STOCK</label>
+          <input id="stock" type="number" formControlName="stock" placeholder="Minutos" min="1">
+          @if (form.get('stock')?.invalid && form.get('stock')?.touched) {
+          <div class="error">
+            @if (form.get('stock')?.hasError('required')) {
+            <span>El stock es obligatorio</span>
+            }
+            @if (form.get('stock')?.hasError('min')) {
+            <span>Mínimo 1 minuto</span>
+            }
+          </div>
+          }
+        </div>
+
+      </div>
+
+      <div class="form-group">
+        <label for="supplierId">ID DE PROVEEDOR</label>
+        <input id="supplierId" type="text" formControlName="supplierId" maxlength="3"
+          placeholder="ID de proveedor">
+      </div>
+
+      <div class="form-group-row">
+        <div class="form-group">
+          <label for="state">ESTADO</label>
+          <input id="state" type="text" formControlName="state" value="ACTIVO" readOnly="true" />
+        </div>
+
+        <div class="form-group">
+          <label for="registration_date">F. REGISTRO</label>
+          <div class="date-input-container">
+            <input id="registration_date" type="datetime-local" formControlName="registration_date" readonly>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="illustration-column">
+
+      <div class="image-placeholder">
+        <h3>IMAGEN DE REFERENCIA</h3>
+        <div class="image-box" [class.has-image]="imagePreviewUrl">
+
+          <input type="file" id="imageUpload" accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+
+          @if (imagePreviewUrl && !isUploading) {
+          <img [src]="imagePreviewUrl" alt="Previsualización del servicio">
+          }
+
+          <div class="upload-overlay">
+
+            @if (isUploading) {
+            <div class="spinner"></div>
+            }
+            @if (isUploading) {
+            <span class="loading-text">Cargando...</span>
+            }
+
+            @if (!isUploading) {
+            <label for="imageUpload" class="upload-label">
+              {{ imagePreviewUrl ? 'Cambiar imagen' : '+ Cargar Imagen' }}
+            </label>
+            }
+          </div>
+        </div>
+
+        <input type="hidden" formControlName="image_url">
+      </div>
+
+      <div class="illustration-placeholder">
+      </div>
+
+      <div class="action-buttons">
+        @if (!product?.id) {
+        <button type="submit" class="crear">CREAR</button>
+        }
+      </div>
+    </div>
+
+  </div>
+</form>

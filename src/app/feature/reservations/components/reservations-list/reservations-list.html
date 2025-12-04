@@ -1,0 +1,125 @@
+<div class="reservations-container">
+  <!-- Filtros superiores -->
+  <div class="filters-section">
+    <div class="filters-left">
+      <span class="filter-label">FILTRAR:</span>
+
+      <button class="filter-btn" [class.active]="statusFilter === 'P'" (click)="setStatusFilter('P')">
+        PENDIENTE
+      </button>
+      <button class="filter-btn" [class.active]="statusFilter === 'A'" (click)="setStatusFilter('A')">
+        ATENDIDO
+      </button>
+      <button class="filter-btn" [class.active]="statusFilter === 'R'" (click)="setStatusFilter('R')">
+        REPROGRAMADA
+      </button>
+      <button class="filter-btn" [class.active]="statusFilter === 'C'" (click)="setStatusFilter('C')">
+        CANCELADO
+      </button>
+      <button class="filter-btn" [class.active]="statusFilter === 'N'" (click)="setStatusFilter('N')">
+        NO SE PRESENTÓ
+      </button>
+      <button class="filter-btn" [class.active]="statusFilter === 'F'" (click)="setStatusFilter('F')">
+        FACTURADO
+      </button>
+    </div>
+
+    <div class="filters-right">
+      <span class="filter-label">ORDENAR:</span>
+
+      <button class="filter-btn" [class.active]="sortOrder === 'az'" (click)="setSortOrder('az')">
+        A - Z
+      </button>
+      <button class="filter-btn" [class.active]="sortOrder === 'za'" (click)="setSortOrder('za')">
+        Z - A
+      </button>
+
+      <button class="filter-btn reset-btn" (click)="resetFilters()" title="Reiniciar filtros">
+        <i class="fas fa-redo"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Grid de Cards -->
+  <div class="cards-grid" (click)="closeDropdowns()">
+    @if (filteredReservations.length === 0) {
+      <div class="no-data-message">
+        <i class="fas fa-calendar-times"></i>
+        <h3>No hay reservaciones</h3>
+        <p>No se encontraron reservaciones con los filtros aplicados.</p>
+      </div>
+    }
+    @for (reservation of filteredReservations; track reservation) {
+      <div class="reservation-card">
+        <!-- Header con Nombre y Estado -->
+        <div class="card-header">
+          <div class="employee-info">
+            <div class="employee-avatar">
+              {{ (reservation.employeeName || 'E')[0].toUpperCase() }}
+            </div>
+            <div class="employee-details">
+              <h3 class="employee-name">{{ reservation.employeeName || 'Sin asignar' }}</h3>
+              <div class="status-dropdown-container">
+                <button 
+                  class="status-badge" 
+                  [ngClass]="'status-' + reservation.status"
+                  (click)="toggleStatusDropdown(reservation.id, $event)">
+                  {{ getStatusLabel(reservation.status) }}
+                </button>
+                @if (showStatusDropdown === reservation.id) {
+                  <div class="status-dropdown">
+                    @for (status of availableStatuses; track status.value) {
+                      <button 
+                        class="status-option"
+                        [class.active]="status.value === reservation.status"
+                        (click)="changeStatus(reservation, status.value, $event)">
+                        <i class="fas" [ngClass]="status.icon"></i>
+                        <span>{{ status.label }}</span>
+                        @if (status.value === reservation.status) {
+                          <i class="fas fa-check check-icon"></i>
+                        }
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body con información -->
+        <div class="card-body">
+          <div class="info-row">
+            <i class="fas fa-envelope icon-teal"></i>
+            <span class="info-text">{{ reservation.clientName || 'Cliente ID: ' + reservation.clientId }}</span>
+          </div>
+
+          <div class="info-row">
+            <i class="fas fa-phone icon-teal"></i>
+            <span class="info-text">Celular: {{ reservation.clientId }}</span>
+          </div>
+
+          <div class="info-row">
+            <i class="fas fa-clock icon-teal"></i>
+            <span class="info-text">Turno: {{ reservation.serviceDate | date: 'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="info-row">
+            <i class="fas fa-calendar icon-teal"></i>
+            <span class="info-text">Registro: {{ reservation.reservationDate | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <!-- Footer con botones -->
+        <div class="card-footer">
+          <button class="card-btn view-btn" (click)="viewReservation(reservation)" title="Ver detalles">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="card-btn edit-btn" (click)="editReservation(reservation)">
+            EDITAR RESERVACIÓN
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

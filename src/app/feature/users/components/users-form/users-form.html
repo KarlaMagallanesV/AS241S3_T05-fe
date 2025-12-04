@@ -1,0 +1,155 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
+  <h3 class="step-title">INFORMACIÓN DEL USUARIO</h3>
+
+  <div class="form-fields">
+    <!-- Rol -->
+    <div class="form-group">
+      <label for="role">ROL DEL USUARIO</label>
+      <select id="role" formControlName="role">
+        <option value="ADMIN">Administrador</option>
+        <option value="RECEPTIONIST">Recepcionista</option>
+        <option value="STYLIST">Estilista</option>
+        <option value="CLIENT">Cliente</option>
+      </select>
+      @if (form.get('role')?.invalid && form.get('role')?.touched) {
+        <div class="error">
+          <span>El rol es obligatorio</span>
+        </div>
+      }
+    </div>
+
+    <!-- Contraseña -->
+    <div class="form-group">
+      <label for="password">CONTRASEÑA</label>
+      <input id="password" type="password" formControlName="password" placeholder="Mínimo 8 caracteres">
+      @if (form.get('password')?.invalid && form.get('password')?.touched) {
+        <div class="error">
+          @if (form.get('password')?.hasError('required')) {
+            <span>La contraseña es obligatoria</span>
+          }
+          @if (form.get('password')?.hasError('minlength')) {
+            <span>Mínimo 8 caracteres</span>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Empleado (con modal) -->
+    <div class="form-group">
+      <label for="employee">EMPLEADO (Opcional)</label>
+      <button
+        type="button"
+        class="select-button"
+        (click)="openEmployeeModal()"
+        [disabled]="!!form.get('clientId')?.value">
+        {{ selectedEmployee ? (selectedEmployee.nameEmployee + ' ' + selectedEmployee.lastname) : 'Seleccionar empleado' }}
+      </button>
+      @if (selectedEmployee) {
+        <div class="selected-item">
+          <span>{{ selectedEmployee.nameEmployee }} {{ selectedEmployee.lastname }}</span>
+          <button type="button" class="clear-btn" (click)="clearEmployee()">×</button>
+        </div>
+      }
+    </div>
+
+    <!-- Cliente (con modal) -->
+    <div class="form-group">
+      <label for="client">CLIENTE (Opcional)</label>
+      <button
+        type="button"
+        class="select-button"
+        (click)="openClientModal()"
+        [disabled]="!!form.get('employeeId')?.value">
+        {{ selectedClient ? (selectedClient.nameClient + ' ' + selectedClient.lastname) : 'Seleccionar cliente' }}
+      </button>
+      @if (selectedClient) {
+        <div class="selected-item">
+          <span>{{ selectedClient.nameClient }} {{ selectedClient.lastname }}</span>
+          <button type="button" class="clear-btn" (click)="clearClient()">×</button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Botones -->
+  <div class="action-buttons">
+    <button type="button" class="btn-secondary" (click)="onCancel()">
+      CANCELAR
+    </button>
+    <button type="submit" class="btn-primary" [disabled]="form.invalid">
+      REGISTRAR USUARIO
+    </button>
+  </div>
+</form>
+
+<!-- Modal de Empleados -->
+@if (showEmployeeModal) {
+  <div class="modal-overlay" (click)="closeEmployeeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Seleccionar Empleado</h3>
+        <button class="close-btn" (click)="closeEmployeeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar empleado..."
+          [(ngModel)]="employeeSearch"
+          [ngModelOptions]="{standalone: true}"
+          (input)="filterEmployees()"
+          />
+          <div class="list-container">
+            @for (employee of filteredEmployees; track employee) {
+              <div
+                class="list-item"
+                (click)="selectEmployee(employee)">
+                {{ employee.nameEmployee }} {{ employee.lastname }}
+              </div>
+            }
+            @if (filteredEmployees.length === 0) {
+              <div class="no-results">
+                No se encontraron empleados
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de Clientes -->
+  @if (showClientModal) {
+    <div class="modal-overlay" (click)="closeClientModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Seleccionar Cliente</h3>
+          <button class="close-btn" (click)="closeClientModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar cliente..."
+            [(ngModel)]="clientSearch"
+            [ngModelOptions]="{standalone: true}"
+            (input)="filterClients()"
+            />
+            <div class="list-container">
+              @for (client of filteredClients; track client) {
+                <div
+                  class="list-item"
+                  (click)="selectClient(client)">
+                  {{ client.nameClient }} {{ client.lastname }}
+                </div>
+              }
+              @if (filteredClients.length === 0) {
+                <div class="no-results">
+                  No se encontraron clientes
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }

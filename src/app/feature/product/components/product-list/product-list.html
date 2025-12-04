@@ -1,0 +1,204 @@
+<div class="table-container">
+    <!-- Filtros superiores -->
+    <div class="filters-section">
+        <div class="filters-left">
+
+            <span class="filter-label">ESTADO:</span>
+            <button class="filter-btn check-btn" [class.active]="statusFilter === 'true'"
+                (click)="statusFilter='true'; applyFilters()">
+                <i class="fas fa-check"></i>
+            </button>
+            <button class="filter-btn times-btn" [class.active]="statusFilter === 'false'"
+                (click)="statusFilter='false'; applyFilters()">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <select class="filter-select" [(ngModel)]="priceFilter" (change)="applyFilters()">
+                <option value="">Precio</option>
+                @for (range of priceRanges; track range) {
+                <option [value]="range.label">{{ range.label }}</option>
+                }
+            </select>
+        </div>
+
+        <div class="filters-right">
+            <span class="filter-label">ORDENAR:</span>
+            <button class="filter-btn" [class.active]="sortOption==='name_asc'"
+                (click)="sortOption='name_asc'; sortProducts()">A - Z</button>
+            <button class="filter-btn" [class.active]="sortOption==='name_desc'"
+                (click)="sortOption='name_desc'; sortProducts()">Z - A</button>
+            <button class="filter-btn" [class.active]="sortOption==='salePrice_asc'"
+                (click)="sortOption='salePrice_asc'; sortProducts()">Precio ↑</button>
+            <button class="filter-btn" [class.active]="sortOption==='salePrice_desc'"
+                (click)="sortOption='salePrice_desc'; sortProducts()">Precio ↓</button>
+
+            <button class="filter-btn reset-btn" (click)="resetFilters()" title="Reiniciar filtros">
+                <i class="fas fa-redo"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabla de servicios -->
+    <div class="table-wrapper">
+        <table class="clients-table">
+            <thead>
+                <tr>
+                    <th>PRODUCTO</th>
+                    <th>DESCRIPCIÓN</th>
+                    <th>STOCK</th>
+                    <th>PRECIO</th>
+                    <th>PROVEEDOR</th>
+                    <th>ESTADO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (service of paginatedProducts; track service) {
+                <tr [class.highlighted]="selectedProduct?.id === service.id">
+                    <td>{{ service.name_product }}</td>
+                    <td>{{ service.description_product }}</td>
+                    <td>{{ service.stock }}</td>
+                    <td>{{ service.sale_price }}</td>
+                    <td>{{ service.supplier_id }}</td>
+                    <td>
+                        <span class="status-badge" [class.active]="service.state" [class.inactive]="!service.state">
+                            {{ service.state ? 'ACTIVO' : 'INACTIVO' }}
+                        </span>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="action-btn view-btn" (click)="openModal(service)" title="Ver">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        @if (service.state) {
+                        <button class="action-btn edit-btn" (click)="openModalEdit(service)" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        }
+                        <button class="action-btn toggle-btn" (click)="toggleState(service.id, service.state!)"
+                            title="Cambiar estado">
+                            <i class="fa" [ngClass]="service.state ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal unificado para vista/edición -->
+    @if (showModal || showModalEdit) {
+    <div class="modal" (click)="showModal ? closeModal($event) : closeModalEdit($event)">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <span class="close-btn" (click)="showModal ? closeModal($event) : closeModalEdit($event)">×</span>
+            <h2>{{ showModal ? 'Información del Servicio' : 'Actualizar Servicio' }}</h2>
+            <!-- Vista -->
+            @if (showModal) {
+            <div>
+                <div class="info-row"><span class="info-label">Código:</span> <span class="info-value">{{
+                        selectedProduct?.id }}</span></div>
+                <div class="info-row"><span class="info-label">Nombre:</span> <span class="info-value">{{
+                        selectedProduct?.name_product }}</span></div>
+                <div class="info-row"><span class="info-label">Descripción:</span> <span class="info-value">{{
+                        selectedProduct?.description_product }}</span></div>
+                <div class="info-row"><span class="info-label">Stock:</span> <span class="info-value">{{
+                        selectedProduct?.stock }}</span></div>
+                <div class="info-row"><span class="info-label">Precio:</span> <span class="info-value">S/ {{
+                        selectedProduct?.sale_price | number:'1.2-2' }}</span></div>
+                <div class="info-row"><span class="info-label">Id de proveedor:</span> <span class="info-value">{{
+                        selectedProduct?.supplier_id }}</span></div>
+                @if (selectedProduct?.image_url) {
+                <div class="info-row image-preview-row">
+                    <span class="info-label">Imagen:</span>
+                    <img [src]="selectedProduct?.image_url" alt="Imagen del servicio" class="modal-image-preview">
+                </div>
+                }
+                <div class="info-row"><span class="info-label">Fecha de registro:</span> <span class="info-value">{{
+                        selectedProduct?.registration_date | date:'dd/MM/yyyy HH:mm' }}</span></div>
+                <div class="info-row"><span class="info-label">Estado:</span>
+                    <span class="status-badge" [class.active]="selectedProduct?.state"
+                        [class.inactive]="!selectedProduct?.state">
+                        {{ selectedProduct?.state ? 'Activo' : 'Inactivo' }}
+                    </span>
+                </div>
+            </div>
+            }
+            <!-- Edición -->
+            @if (showModalEdit) {
+            <form [formGroup]="formEdit" (ngSubmit)="onUpdate()">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre del producto:</label>
+                        <input type="text" formControlName="nameProduct" maxlength="50" (keydown)="onlyLetters($event)">
+                        @if (formEdit.get('nameProduct')?.invalid && formEdit.get('nameProduct')?.touched) {
+                        <span class="error">Nombre inválido</span>
+                        }
+                    </div>
+                    <div class="form-group">
+                        <label>Stock:</label>
+                        <input type="number" formControlName="stock">
+                        @if (formEdit.get('stock')?.invalid && formEdit.get('stock')?.touched) {
+                        <span class="error">Stock invalido</span>
+                        }
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio:</label>
+                        <input type="text" formControlName="salePrice"
+                            (keydown)="onlyPrice($event, formEdit.get('salePrice')?.value)">
+                        @if (formEdit.get('salePrice')?.invalid && formEdit.get('salePrice')?.touched) {
+                        <span class="error">Precio inválido</span>
+                        }
+                    </div>
+                    <div class="form-group">
+                        <label>Proveedor:</label>
+                        <input type="number" formControlName="supplierId">
+                        @if (formEdit.get('supplierId')?.invalid && formEdit.get('supplierId')?.touched) {
+                        <span class="error">Proveedor Invalido</span>
+                        }
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Descripción:</label>
+                    <textarea formControlName="descriptionProduct" rows="3" maxlength="500"></textarea>
+                    @if (formEdit.get('descriptionProduct')?.invalid && formEdit.get('descriptionProduct')?.touched) {
+                    <span class="error">Descripción inválida</span>
+                    }
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Imagen del producto:</label>
+                        <input type="hidden" formControlName="image_url">
+                        <input type="file" id="image_file" (change)="onFileSelected($event)"
+                            formControlName="image_file" accept="image/*">
+                    </div>
+                    <div class="form-group image-preview-group">
+                        <label>Previsualización:</label>
+                        @if (selectedImageUrl) {
+                        <img [src]="selectedImageUrl" alt="Previsualización" class="modal-image-preview">
+                        }
+                        @if (!selectedImageUrl) {
+                        <div class="image-placeholder">No hay imagen.</div>
+                        }
+                    </div>
+                </div>
+                <div class="button-container">
+                    <button type="submit" class="view-btn-edit"><i class="fas fa-pen fa-xs"></i> Actualizar</button>
+                </div>
+            </form>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- Paginación -->
+    <div class="pagination-section">
+        <span class="pagination-info">Página {{ currentPage }} de {{ totalPages }}</span>
+        <div class="pagination-controls">
+            <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1"><i
+                    class="fas fa-chevron-left"></i></button>
+            <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages"><i
+                    class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>

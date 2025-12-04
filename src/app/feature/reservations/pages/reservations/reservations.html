@@ -1,0 +1,86 @@
+<!-- Animación de carga -->
+@if (isLoading) {
+  <app-loading-animation></app-loading-animation>
+}
+
+<div class="app-container">
+  <div class="main-content-container">
+    <div class="content-container">
+      <header class="header">
+        <h1>RESERVACIONES</h1>
+
+        <div class="header-actions">
+          <!-- Barra de búsqueda -->
+          <div class="search-container">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Buscar por cliente o empleado..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearch()"
+            />
+            <button class="search-button" (click)="onSearch()">
+              <i class="fas fa-search"></i>
+            </button>
+            @if (searchTerm) {
+              <button
+                class="clear-search-btn"
+                (click)="clearSearch()"
+                title="Limpiar búsqueda"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            }
+          </div>
+
+          <!-- Botón para exportar PDF -->
+          <button class="btn-export-pdf" (click)="exportPdf()">
+            <i class="fas fa-download"></i>
+            EXPORTAR PDF
+          </button>
+
+          <!-- Botón para agregar reservación -->
+          <button class="btn-add-reservation" (click)="onCreateNew()">
+            <i class="fas fa-plus"></i>
+            AGREGAR RESERVACIÓN
+          </button>
+
+          <!-- Botón de notificaciones -->
+          <button class="btn-notification" title="Notificaciones">
+            <i class="fas fa-bell"></i>
+          </button>
+
+          <!-- Botón de perfil -->
+          <button class="btn-profile" title="Perfil">
+            <i class="fas fa-user-circle"></i>
+            <span class="profile-name">Nire</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="content">
+        <!-- Solo la lista de reservaciones (ocupa todo el ancho) -->
+        <app-reservations-list 
+          #reservationsListComponent
+          (edit)="onEditReservation($event)">
+        </app-reservations-list>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DEL FORMULARIO -->
+@if (showForm) {
+  <div class="modal-overlay" (click)="onModalBackdropClick($event)">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <button class="modal-close-btn" (click)="onFormCancelled()">
+        <i class="fas fa-times"></i>
+      </button>
+      <app-reservations-form
+        [reservation]="selectedReservation"
+        (saved)="onFormSaved()"
+        (cancelled)="onFormCancelled()">
+      </app-reservations-form>
+    </div>
+  </div>
+}

@@ -1,0 +1,23 @@
+// Asegurar que SweetAlert2 siempre esté por encima de todo
+.swal2-container {
+    z-index: 999999 !important;
+}
+
+.swal2-popup {
+    z-index: 999999 !important;
+}
+
+// Backdrop de SweetAlert2
+div:where(.swal2-container) {
+    z-index: 999999 !important;
+}
+
+// Asegurar que el overlay de SweetAlert esté visible
+.swal2-container.swal2-backdrop-show {
+    z-index: 999998 !important;
+}
+
+// Mantener la altura del body
+body.swal2-height-auto {
+    height: 100% !important;
+}

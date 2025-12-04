@@ -1,0 +1,261 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
+  <!-- Indicador de pasos -->
+  <div class="step-indicator">
+    <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+      <div class="step-number">1</div>
+    </div>
+    <div class="step-line" [class.completed]="currentStep > 1"></div>
+    <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+      <div class="step-number">2</div>
+    </div>
+  </div>
+
+  <!-- PASO 1: Información Básica -->
+  @if (currentStep === 1) {
+  <div class="form-step">
+    <h3 class="step-title">INFORMACIÓN DEL CLIENTE</h3>
+
+    <!-- Contenedor principal con grid -->
+    <div class="step-content-wrapper">
+      <!-- Columna izquierda: Formulario -->
+      <div class="form-fields">
+        <!-- T.DOC y N° DOC -->
+        <div class="form-group-row">
+          <div class="form-group">
+            <label for="documentType">T DOCUMENTO</label>
+            <select id="documentType" formControlName="documentType" (change)="onDocumentTypeChange()">
+              <option value="DNI">DNI</option>
+              <option value="CE">CE</option>
+            </select>
+            @if (form.get('documentType')?.invalid && form.get('documentType')?.touched) {
+              <div class="error">
+                <span>El tipo de documento es obligatorio</span>
+              </div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="documentNumber">N° DOCUMENTO</label>
+            <input
+              id="documentNumber"
+              type="text"
+              formControlName="documentNumber"
+              (keydown)="onlyNumbers($event)"
+              [attr.maxlength]="form.get('documentType')?.value === 'DNI' ? 8 : 20"
+              placeholder="{{form.get('documentType')?.value === 'DNI' ? '8 dígitos' : '20 dígitos'}}">
+              @if (form.get('documentNumber')?.invalid && form.get('documentNumber')?.touched) {
+                <div class="error">
+                  @if (form.get('documentNumber')?.hasError('required')) {
+                    <span>El número de documento es obligatorio</span>
+                  }
+                  @if (form.get('documentNumber')?.hasError('pattern')) {
+                    <span>
+                      {{form.get('documentType')?.value === 'DNI' ? 'Debe tener 8 dígitos' : 'Debe tener 20 dígitos'}}
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Nombres -->
+          <div class="form-group">
+            <label for="firstName">NOMBRES DEL CLIENTE</label>
+            <input id="firstName" type="text" formControlName="firstName" (keydown)="onlyLetters($event)">
+            @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+              <div class="error">
+                @if (form.get('firstName')?.hasError('required')) {
+                  <span>Los nombres son obligatorios</span>
+                }
+                @if (form.get('firstName')?.hasError('pattern')) {
+                  <span>Solo se permiten letras</span>
+                }
+                @if (form.get('firstName')?.hasError('minlength')) {
+                  <span>Mínimo 3 caracteres</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Apellidos -->
+          <div class="form-group">
+            <label for="lastName">APELLIDOS</label>
+            <input id="lastName" type="text" formControlName="lastName" (keydown)="onlyLetters($event)">
+            @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+              <div class="error">
+                @if (form.get('lastName')?.hasError('required')) {
+                  <span>Los apellidos son obligatorios</span>
+                }
+                @if (form.get('lastName')?.hasError('pattern')) {
+                  <span>Solo se permiten letras</span>
+                }
+                @if (form.get('lastName')?.hasError('minlength')) {
+                  <span>Mínimo 2 caracteres</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Celular y Cumpleaños -->
+          <div class="form-group-row">
+            <div class="form-group">
+              <label for="phoneNumber">N° DE CELULAR</label>
+              <input
+                id="phoneNumber"
+                type="text"
+                formControlName="phoneNumber"
+                (keydown)="onlyNumbers($event)"
+                maxlength="9"
+                placeholder="9 dígitos">
+                @if (form.get('phoneNumber')?.invalid && form.get('phoneNumber')?.touched) {
+                  <div class="error">
+                    @if (form.get('phoneNumber')?.hasError('required')) {
+                      <span>El celular es obligatorio</span>
+                    }
+                    @if (form.get('phoneNumber')?.hasError('pattern')) {
+                      <span>Debe tener 9 dígitos y comenzar con 9</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="birthDate">FECHA DE CUMPLEAÑOS</label>
+                <div class="date-input-container">
+                  <input type="date" formControlName="birthDate" [max]="maxBirthDate">
+                </div>
+                @if (form.get('birthDate')?.invalid && form.get('birthDate')?.touched) {
+                  <div class="error">
+                    <span>Fecha de cumpleaños obligatoria</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna derecha: Foto de perfil -->
+          <div class="photo-section">
+            <p class="photo-label-top">FOTO DE PERFIL</p>
+            <div class="photo-upload">
+              <img [src]="photoPreview || 'https://placehold.co/120x120'" alt="Foto de perfil" class="photo-preview">
+              <label for="photoInput" class="photo-button">
+                <i class="fas fa-camera"></i>
+              </label>
+              <input
+                type="file"
+                id="photoInput"
+                accept="image/*"
+                (change)="onPhotoSelected($event)"
+                style="display: none;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Imagen decorativa paso 1 -->
+          <div class="decorative-image">
+            <img src="/paso1.png" alt="Decoración paso 1">
+          </div>
+
+          <!-- Botones Paso 1 -->
+          <div class="action-buttons">
+            <button type="button" class="btn-secondary" (click)="onCancel()">
+              CANCELAR
+            </button>
+            <button type="button" class="btn-primary" (click)="nextStep()">
+              SIGUIENTE →
+            </button>
+          </div>
+        </div>
+  }
+
+        <!-- PASO 2: Información Adicional -->
+        @if (currentStep === 2) {
+          <div class="form-step">
+            <h3 class="step-title">INFORMACIÓN DEL CLIENTE</h3>
+            <!-- Campos del paso 2 -->
+            <div class="step2-fields">
+              <!-- Correo Electrónico -->
+              <div class="form-group">
+                <label for="email">CORREO ELECTRONICO</label>
+                <input id="email" type="text" formControlName="email">
+                @if (form.get('email')?.invalid && form.get('email')?.touched) {
+                  <div class="error">
+                    @if (form.get('email')?.hasError('required')) {
+                      <span>El correo es obligatorio</span>
+                    }
+                    @if (form.get('email')?.hasError('email')) {
+                      <span>El formato del correo no es válido</span>
+                    }
+                  </div>
+                }
+              </div>
+              <!-- Distrito de Procedencia (Ubigeo) -->
+              <div class="form-group">
+                <label for="ubigeoCode">DISTRITO DE PROCEDENCIA DEL CLIENTE</label>
+                <select id="ubigeoCode" formControlName="ubigeoCode">
+                  <option value="">Seleccione un distrito</option>
+                  @for (ubigeo of ubigeos; track ubigeo) {
+                    <option [value]="ubigeo.code">
+                      {{ ubigeo.district }}
+                    </option>
+                  }
+                </select>
+                @if (form.get('ubigeoCode')?.invalid && form.get('ubigeoCode')?.touched) {
+                  <div class="error">
+                    <span>El distrito es obligatorio</span>
+                  </div>
+                }
+              </div>
+              <!-- Frecuencia y Puntos -->
+              <div class="form-group-row">
+                <div class="form-group">
+                  <label for="visitFrequency">FRECUENCIA DE VISITA</label>
+                  <select id="visitFrequency" formControlName="visitFrequency">
+                    <option value="N">Cliente Nuevo</option>
+                    <option value="F">Cliente Fiel</option>
+                    <option value="O">Cliente Ocasional</option>
+                    <option value="H">Cliente Habitual</option>
+                  </select>
+                  @if (form.get('visitFrequency')?.invalid && form.get('visitFrequency')?.touched) {
+                    <div class="error">
+                      <span>La frecuencia es obligatoria</span>
+                    </div>
+                  }
+                </div>
+                <div class="form-group">
+                  <label for="points">PUNTOS DEL CLIENTE</label>
+                  <input
+                    id="points"
+                    type="text"
+                    formControlName="points"
+                    (keydown)="onlyNumbers($event)"
+                    placeholder="0">
+                    @if (form.get('points')?.invalid && form.get('points')?.touched) {
+                      <div class="error">
+                        <span>Los puntos son obligatorios</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+              <!-- Imagen decorativa paso 2 -->
+              <div class="decorative-image">
+                <img src="/paso2.png" alt="Decoración paso 2">
+              </div>
+              <!-- Botones Paso 2 -->
+              <div class="action-buttons">
+                <button type="button" class="btn-secondary" (click)="prevStep()">
+                  ← ATRAS
+                </button>
+                <button type="submit" class="btn-primary" [disabled]="form.invalid || isUploading">
+                  @if (!isUploading) {
+                    <span>AGREGAR CLIENTE</span>
+                  }
+                  @if (isUploading) {
+                    <span>SUBIENDO...</span>
+                  }
+                </button>
+              </div>
+            </div>
+          }
+        </form>

@@ -1,0 +1,267 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
+
+    <h3 class="step-title">NUEVA FACTURACIÓN</h3>
+
+    <div class="form-fields">
+
+        <!-- CLIENTE & USUARIO -->
+        <div class="form-group-row">
+
+            <!-- CLIENTE -->
+            <div class="form-group">
+                <label>CLIENTE *</label>
+
+                <button type="button" class="select-button" (click)="openClientModal()">
+                    {{ selectedClient ? (selectedClient.name_client + ' ' + selectedClient.lastname) : 'Seleccionar
+                    cliente' }}
+                </button>
+
+                @if (selectedClient) {
+                <div class="selected-item">
+                    <span>{{ selectedClient.name_client }} {{ selectedClient.lastname }}</span>
+                    <button type="button" class="clear-btn" (click)="clearClient()">×</button>
+                </div>
+                }
+
+                @if (form.get('clientId')?.invalid && form.get('clientId')?.touched) {
+                <div class="error"><span>El cliente es obligatorio</span></div>
+                }
+            </div>
+
+            <!-- USUARIO -->
+            <div class="form-group">
+                <label>USUARIO *</label>
+
+                <button type="button" class="select-button" (click)="openUserModal()">
+                    {{ selectedUser ? (selectedUser.name_user + ' ' + selectedUser.lastname) : 'Seleccionar usuario' }}
+                </button>
+
+                @if (selectedUser) {
+                <div class="selected-item">
+                    <span>{{ selectedUser.name_user }} {{ selectedUser.lastname }}</span>
+                    <button type="button" class="clear-btn" (click)="clearUser()">×</button>
+                </div>
+                }
+
+                @if (form.get('userId')?.invalid && form.get('userId')?.touched) {
+                <div class="error"><span>El usuario es obligatorio</span></div>
+                }
+            </div>
+
+        </div>
+
+        <!-- RESERVA (OPCIONAL) -->
+        <div class="form-group">
+            <label>RESERVA</label>
+
+            <button type="button" class="select-button" (click)="openReservationModal()">
+                {{ selectedReservation ? ('Reserva #' + selectedReservation.reservationId) : 'Seleccionar reserva
+                (opcional)' }}
+            </button>
+
+            @if (selectedReservation) {
+            <div class="selected-item">
+                <span>Fecha: {{ selectedReservation.service_date | date:'dd/MM/yyyy' }}</span>
+                <button type="button" class="clear-btn" (click)="clearReservation()">×</button>
+            </div>
+            }
+        </div>
+
+        <!-- MÉTODO DE PAGO -->
+        <div class="form-group">
+            <label>MÉTODO DE PAGO *</label>
+            <select formControlName="paymentMethod" class="form-select">
+                <option value="">Seleccionar método</option>
+                <option value="E">Efectivo</option>
+                <option value="T">Tarjeta</option>
+                <option value="Y">Yape</option>
+            </select>
+
+            @if (form.get('paymentMethod')?.invalid && form.get('paymentMethod')?.touched) {
+            <div class="error"><span>Seleccione un método de pago</span></div>
+            }
+        </div>
+
+        <!-- DETALLES: PRODUCTOS -->
+        <div class="form-group">
+            <label>PRODUCTOS *</label>
+
+            <button type="button" class="add-service-btn" (click)="openProductModal()">
+                <i class="fas fa-plus"></i> Agregar Producto
+            </button>
+
+            @if (details.length > 0) {
+            <div class="services-list">
+                @for (detail of detailsFormGroups; track $index; let i = $index) {
+                <div class="service-item" [formGroup]="detail">
+
+                    <div class="service-info">
+                        <span class="service-name">{{ detail.get('name')?.value }}</span>
+                    </div>
+
+                    <span class="service-details">
+                        S/. {{ detail.get('price')?.value }}
+                    </span>
+
+                    <span class="service-details">
+                        Cant:
+                        <input type="number" min="1" class="quantity-input" formControlName="amount">
+                    </span>
+
+                    <span class="service-details">
+                        Subtotal: S/. {{ detail.get('subtotal')?.value }}
+                    </span>
+
+                    <button type="button" class="remove-btn" (click)="removeDetail(i)">×</button>
+
+                </div>
+                }
+            </div>
+            }
+
+            @if (details.length === 0 && selectReservation === null) {
+            <div class="info-message">
+                Agregue al menos un producto para la factura
+            </div>
+            }
+        </div>
+
+    </div>
+
+    <!-- BOTONES -->
+    <div class="action-buttons">
+        <button type="button" class="btn-secondary" (click)="onCancel()">CANCELAR</button>
+        <button type="submit" class="btn-primary"
+            [disabled]="form.invalid || (!selectedReservation && details.length === 0)">
+            CREAR FACTURA
+        </button>
+
+    </div>
+</form>
+
+<!-- ================= MODALES ================= -->
+
+<!-- CLIENTE -->
+@if (showClientModal) {
+<div class="modal-overlay" (click)="closeClientModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Seleccionar Cliente</h3>
+            <button class="close-btn" (click)="closeClientModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+            <input type="text" class="search-input" placeholder="Buscar cliente..." [(ngModel)]="clientSearch"
+                [ngModelOptions]="{standalone: true}" (input)="filterClients()">
+
+            <div class="list-container">
+                @for (client of filteredClients; track client.clientId) {
+                <div class="list-item" (click)="selectClient(client)">
+                    {{ client.name_client }} {{ client.lastname }}
+                </div>
+                }
+
+                @if (filteredClients.length === 0) {
+                <div class="no-results">No se encontraron clientes</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- USUARIO -->
+@if (showUserModal) {
+<div class="modal-overlay" (click)="closeUserModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Seleccionar Usuario</h3>
+            <button class="close-btn" (click)="closeUserModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+            <input type="text" class="search-input" placeholder="Buscar usuario..." [(ngModel)]="userSearch"
+                [ngModelOptions]="{standalone: true}" (input)="filterUsers()">
+
+            <div class="list-container">
+                @for (user of filteredUsers; track user.userId) {
+                <div class="list-item" (click)="selectUser(user)">
+                    {{ user.name_user }} {{ user.lastname }}
+                </div>
+                }
+
+                @if (filteredUsers.length === 0) {
+                <div class="no-results">No se encontraron usuarios</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- RESERVA -->
+@if (showReservationModal) {
+<div class="modal-overlay" (click)="closeReservationModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Seleccionar Reserva</h3>
+            <button class="close-btn" (click)="closeReservationModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+            <input type="text" class="search-input" placeholder="Buscar reserva..." [(ngModel)]="reservationSearch"
+                [ngModelOptions]="{standalone: true}" (input)="filterReservations()">
+
+            <div class="list-container">
+                @for (res of filteredReservations; track res.reservationId) {
+                <div class="list-item" (click)="selectReservation(res)">
+                    Reserva #{{ res.reservationId }}
+                    <div class="small-text">
+                        Fecha: {{ res.service_date | date:'dd/MM/yyyy' }}
+                    </div>
+                    <div class="small-text">
+                        Subtotal servicios: S/. {{ res.subtotal }}
+                    </div>
+                </div>
+                }
+
+                @if (filteredReservations.length === 0) {
+                <div class="no-results">No se encontraron reservas</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- PRODUCTOS -->
+@if (showProductModal) {
+<div class="modal-overlay" (click)="closeProductModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Seleccionar Producto</h3>
+            <button class="close-btn" (click)="closeProductModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+            <input type="text" class="search-input" placeholder="Buscar producto..." [(ngModel)]="productSearch"
+                [ngModelOptions]="{standalone: true}" (input)="filterProducts()">
+
+            <div class="list-container">
+                @for (product of filteredProducts; track product.id) {
+                <div class="list-item" (click)="selectProduct(product)">
+    <span class="item-title">{{ product.name_product }}</span>
+    <span class="item-sub">Stock: {{ product.stock }}</span>
+    <span class="item-price">S/. {{ product.sale_price }}</span>
+</div>
+
+                }
+
+                @if (filteredProducts.length === 0) {
+                <div class="no-results">No se encontraron productos</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+}

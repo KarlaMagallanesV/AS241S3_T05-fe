@@ -1,0 +1,54 @@
+<!-- Grid de cards -->
+<div class="cards-grid">
+  @for (employee of employees; track employee) {
+    <div class="employee-card" [class.inactive]="employee.status === 'I'">
+      <div class="card-header">
+        <span class="employee-name">{{ employee.nameEmployee }} {{ employee.lastname }}</span>
+        <span class="status-badge" [class.active]="employee.status === 'A'">
+          {{ employee.status === 'A' ? 'Activo' : 'Inactivo' }}
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="employee-avatar">
+          <img [src]="employee.imagenUrl || 'https://ui-avatars.com/api/?name=' + employee.nameEmployee + '&background=80A7A3&color=fff&size=120'" [alt]="employee.nameEmployee">
+        </div>
+        <div class="employee-info">
+          <div class="info-item">
+            <i class="fas fa-envelope"></i>
+            <span>{{ employee.email }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-phone"></i>
+            <span>Celular: {{ employee.cellphone }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-clock"></i>
+            <span>Turno: {{ getShiftLabel(employee.shiftEmployee) }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-calendar"></i>
+            <span>Día de Registro: {{ employee.registrationDate | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button
+          class="card-btn toggle-btn"
+          [class.restore-btn]="employee.status === 'I'"
+          (click)="toggleStatus(employee)"
+          [title]="employee.status === 'A' ? 'Desactivar' : 'Restaurar'">
+          <i class="fas fa-power-off"></i>
+        </button>
+        @if (employee.status === 'A') {
+          <button
+            class="card-btn edit-btn"
+            (click)="editEmployee(employee)"
+            title="Editar Empleado"
+            >
+            Editar Empleado
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>

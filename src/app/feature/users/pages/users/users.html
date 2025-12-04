@@ -1,0 +1,140 @@
+<div class="app-container">
+  <div class="main-content-container">
+    <div class="content-container">
+      <header class="header">
+        <h1>USUARIOS</h1>
+
+        <div class="header-actions">
+          <!-- Barra de búsqueda -->
+          <div class="search-container">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Buscar por nombre de usuario..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearch()"
+              />
+              <button class="search-button" (click)="onSearch()">
+                <i class="fas fa-search"></i>
+              </button>
+              @if (searchTerm) {
+                <button
+                  class="clear-search-btn"
+                  (click)="clearSearch()"
+                  title="Limpiar búsqueda"
+                  >
+                  <i class="fas fa-times"></i>
+                </button>
+              }
+            </div>
+
+            <!-- Botón para mostrar formulario modal -->
+            <button class="btn-add-user" (click)="onCreateNew()">
+              <i class="fas fa-plus"></i>
+              AGREGAR USUARIO
+            </button>
+
+            <!-- Botón de notificaciones -->
+            <button class="btn-notification" title="Notificaciones">
+              <i class="fas fa-bell"></i>
+            </button>
+
+            <!-- Botón de perfil con nombre -->
+            <button class="btn-profile" title="Perfil">
+              <i class="fas fa-user-circle"></i>
+              <span class="profile-name">Nire</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Filtros -->
+        <div class="filters-section">
+          <div class="filters-left">
+            <span class="filter-label">FILTRAR:</span>
+
+            <button class="filter-btn check-btn" [class.active]="statusFilter === true" (click)="toggleStatusFilter(true)">
+              <i class="fas fa-check"></i>
+            </button>
+            <button class="filter-btn times-btn" [class.active]="statusFilter === false" (click)="toggleStatusFilter(false)">
+              <i class="fas fa-times"></i>
+            </button>
+
+            <button class="filter-btn" [class.active]="roleFilter === 'ADMIN'" (click)="setRoleFilter('ADMIN')">
+              ADMIN
+            </button>
+            <button class="filter-btn" [class.active]="roleFilter === 'RECEPTIONIST'" (click)="setRoleFilter('RECEPTIONIST')">
+              RECEPCIONISTA
+            </button>
+            <button class="filter-btn" [class.active]="roleFilter === 'STYLIST'" (click)="setRoleFilter('STYLIST')">
+              ESTILISTA
+            </button>
+            <button class="filter-btn" [class.active]="roleFilter === 'CLIENT'" (click)="setRoleFilter('CLIENT')">
+              CLIENTE
+            </button>
+
+            <div class="separator"></div>
+
+            <button class="filter-btn" [class.active]="userTypeFilter === 'employee'" (click)="setUserTypeFilter('employee')">
+              CON EMPLEADO
+            </button>
+            <button class="filter-btn" [class.active]="userTypeFilter === 'client'" (click)="setUserTypeFilter('client')">
+              CON CLIENTE
+            </button>
+          </div>
+
+          <div class="filters-right">
+            <span class="filter-label">ORDENAR:</span>
+
+            <button class="filter-btn" [class.active]="sortOrder === 'az'" (click)="setSortOrder('az')">
+              A - Z
+            </button>
+            <button class="filter-btn" [class.active]="sortOrder === 'za'" (click)="setSortOrder('za')">
+              Z - A
+            </button>
+
+            <button class="filter-btn reset-btn" (click)="resetFilters()" title="Reiniciar filtros">
+              <i class="fas fa-redo"></i>
+            </button>
+          </div>
+        </div>
+
+        <section class="content">
+          <!-- Lista de usuarios en cards -->
+          <app-users-list
+            [users]="paginatedUsers"
+            (toggle)="onToggleStatus($event)">
+          </app-users-list>
+
+          <!-- Paginación -->
+          <div class="pagination-section">
+            <span class="pagination-info">{{ getPageInfo() }}</span>
+
+            <div class="pagination-controls">
+              <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <span class="page-number">page {{ currentPage }} of {{ totalPages }}</span>
+              <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DEL FORMULARIO -->
+  @if (showForm) {
+    <div class="modal-overlay" (click)="onModalBackdropClick($event)">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        <button class="modal-close-btn" (click)="onFormCancelled()">
+          <i class="fas fa-times"></i>
+        </button>
+        <app-users-form
+          (saved)="onFormSaved()"
+          (cancelled)="onFormCancelled()">
+        </app-users-form>
+      </div>
+    </div>
+  }

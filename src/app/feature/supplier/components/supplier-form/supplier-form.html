@@ -1,0 +1,108 @@
+<form [formGroup]="form" (ngSubmit)="onSave()" class="form-container" autocomplete="off">
+
+  <div class="form-header">
+    <h2>INFORMACIÓN DEL PROVEEDOR</h2>
+  </div>
+
+  <div class="form-body">
+
+    <div class="form-fields-column">
+
+      <!-- RUC -->
+      <div class="form-group">
+        <label for="ruc">RUC</label>
+        <input id="ruc" type="text" formControlName="ruc" maxlength="11"
+               (keydown)="onlyNumbers($event)" placeholder="RUC del proveedor">
+
+        @if (form.get('ruc')?.invalid && form.get('ruc')?.touched) {
+          <div class="error">
+            @if (form.get('ruc')?.hasError('required')) {
+              <span>El RUC es obligatorio</span>
+            }
+            @if (form.get('ruc')?.hasError('pattern')) {
+              <span>Debe contener exactamente 11 dígitos numéricos</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Company Name -->
+      <div class="form-group">
+        <label for="companyName">RAZÓN SOCIAL</label>
+        <input id="companyName" type="text" formControlName="companyName" maxlength="80"
+               (keydown)="onlyLettersAndNumbers($event)" placeholder="Nombre de la empresa">
+
+        @if (form.get('companyName')?.invalid && form.get('companyName')?.touched) {
+          <div class="error">
+            @if (form.get('companyName')?.hasError('required')) {
+              <span>La razón social es obligatoria</span>
+            }
+            @if (form.get('companyName')?.hasError('pattern')) {
+              <span>Solo se permiten letras, números y algunos símbolos</span>
+            }
+            @if (form.get('companyName')?.hasError('minlength')) {
+              <span>Mínimo 3 caracteres</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Cellphone -->
+      <div class="form-group">
+        <label for="cellphone">CELULAR</label>
+        <input id="cellphone" type="text" maxlength="9" formControlName="cellphone"
+               (keydown)="onlyNumbers($event)" placeholder="Celular del proveedor">
+
+        @if (form.get('cellphone')?.invalid && form.get('cellphone')?.touched) {
+          <div class="error">
+            @if (form.get('cellphone')?.hasError('required')) {
+              <span>El celular es obligatorio</span>
+            }
+            @if (form.get('cellphone')?.hasError('pattern')) {
+              <span>Debe contener exactamente 9 dígitos</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Ubigeo -->
+      <div class="form-group">
+        <label for="ubigeoId">UBIGEO</label>
+        <input id="ubigeoId" type="text" formControlName="ubigeoId" maxlength="6"
+               placeholder="Código Ubigeo">
+
+        @if (form.get('ubigeoId')?.invalid && form.get('ubigeoId')?.touched) {
+          <div class="error">
+            @if (form.get('ubigeoId')?.hasError('required')) {
+              <span>El ubigeo es obligatorio</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Estado & Fecha -->
+      <div class="form-group-row">
+
+        <div class="form-group">
+          <label for="state">ESTADO</label>
+          <input id="state" type="text" value="ACTIVO" readonly />
+        </div>
+
+        <div class="form-group">
+          <label for="registration_date">F. REGISTRO</label>
+          <div class="date-input-container">
+            <input id="registration_date" type="datetime-local"
+                   formControlName="registration_date" readonly>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="action-buttons">
+        <button type="submit" class="crear">CREAR</button>
+      </div>
+
+    </div>
+
+  </div>
+</form>

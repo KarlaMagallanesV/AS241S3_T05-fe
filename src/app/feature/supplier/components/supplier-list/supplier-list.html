@@ -1,0 +1,210 @@
+<div class="table-container">
+
+    <!-- Filtros superiores -->
+    <div class="filters-section">
+        <div class="filters-left">
+            <span class="filter-label">ESTADO:</span>
+
+            <button class="filter-btn check-btn" [class.active]="statusFilter === 'true'"
+                (click)="statusFilter='true'; applyFilters()">
+                <i class="fas fa-check"></i>
+            </button>
+
+            <button class="filter-btn times-btn" [class.active]="statusFilter === 'false'"
+                (click)="statusFilter='false'; applyFilters()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="filters-right">
+            <span class="filter-label">ORDENAR:</span>
+
+            <button class="filter-btn" [class.active]="sortOption==='name_asc'"
+                (click)="sortOption='name_asc'; sortSuppliers()">A - Z</button>
+
+            <button class="filter-btn" [class.active]="sortOption==='name_desc'"
+                (click)="sortOption='name_desc'; sortSuppliers()">Z - A</button>
+
+            <button class="filter-btn" [class.active]="sortOption==='ruc_asc'"
+                (click)="sortOption='ruc_asc'; sortSuppliers()">RUC ↑</button>
+
+            <button class="filter-btn" [class.active]="sortOption==='ruc_desc'"
+                (click)="sortOption='ruc_desc'; sortSuppliers()">RUC ↓</button>
+
+            <button class="filter-btn reset-btn" (click)="resetFilters()" title="Reiniciar filtros">
+                <i class="fas fa-redo"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="table-wrapper">
+        <table class="clients-table">
+            <thead>
+                <tr>
+                    <th>RUC</th>
+                    <th>RAZÓN SOCIAL</th>
+                    <th>CELULAR</th>
+                    <th>UBIGEO</th>
+                    <th>F. REGISTRO</th>
+                    <th>ESTADO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (supplier of paginatedSuppliers; track supplier) {
+                <tr [class.highlighted]="selectedSupplierView?.id === supplier.id">
+                    <td>{{ supplier.ruc }}</td>
+                    <td>{{ supplier.company_name }}</td>
+                    <td>{{ supplier.cellphone }}</td>
+                    <td>{{ supplier.ubigeo_id }}</td>
+                    <td>{{ supplier.registration_date | date:'dd/MM/yyyy HH:mm' }}</td>
+
+                    <td>
+                        <span class="status-badge"
+                            [class.active]="supplier.status"
+                            [class.inactive]="!supplier.status">
+                            {{ supplier.status ? 'ACTIVO' : 'INACTIVO' }}
+                        </span>
+                    </td>
+
+                    <td class="actions-cell">
+                        <button class="action-btn view-btn"
+                            (click)="openModalView(supplier)"
+                            title="Ver">
+                            <i class="fas fa-eye"></i>
+                        </button>
+
+                        @if (supplier.status) {
+                        <button class="action-btn edit-btn"
+                            (click)="openModalEdit(supplier)"
+                            title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        }
+
+                        <button class="action-btn toggle-btn"
+                            (click)="toggleState(supplier.id!, supplier.status!)"
+                            title="Cambiar estado">
+                            <i class="fa"
+                                [ngClass]="supplier.status ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (showModalView) {
+    <div class="modal" (click)="closeModalView($event)">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+
+            <span class="close-btn" (click)="closeModalView($event)">×</span>
+            <h2>Información del Proveedor</h2>
+
+            <div class="info-row"><span class="info-label">ID:</span>
+                <span class="info-value">{{ selectedSupplierView?.id }}</span></div>
+
+            <div class="info-row"><span class="info-label">RUC:</span>
+                <span class="info-value">{{ selectedSupplierView?.ruc }}</span></div>
+
+            <div class="info-row"><span class="info-label">Razón Social:</span>
+                <span class="info-value">{{ selectedSupplierView?.company_name }}</span></div>
+
+            <div class="info-row"><span class="info-label">Celular:</span>
+                <span class="info-value">{{ selectedSupplierView?.cellphone }}</span></div>
+
+            <div class="info-row"><span class="info-label">Ubigeo:</span>
+                <span class="info-value">{{ selectedSupplierView?.ubigeo_id }}</span></div>
+
+            <div class="info-row"><span class="info-label">Fecha Registro:</span>
+                <span class="info-value">{{ selectedSupplierView?.registration_date | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+
+            <div class="info-row"><span class="info-label">Estado:</span>
+                <span class="status-badge"
+                    [class.active]="selectedSupplierView?.status"
+                    [class.inactive]="!selectedSupplierView?.status">
+                    {{ selectedSupplierView?.status ? 'Activo' : 'Inactivo' }}
+                </span>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- =============================== -->
+    <!-- MODAL EDITAR PROVEEDOR -->
+    <!-- =============================== -->
+    @if (showModalEdit) {
+    <div class="modal" (click)="closeModalEdit($event)">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+
+            <span class="close-btn" (click)="closeModalEdit($event)">×</span>
+            <h2>Actualizar Proveedor</h2>
+
+            <form [formGroup]="formEdit" (ngSubmit)="onUpdate()">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>RUC:</label>
+                        <input type="text" formControlName="ruc" maxlength="11"
+                            (keydown)="onlyNumbers($event)">
+                        @if (formEdit.get('ruc')?.invalid && formEdit.get('ruc')?.touched) {
+                        <span class="error">RUC inválido</span>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Celular:</label>
+                        <input type="text" maxlength="9" formControlName="cellphone"
+                            (keydown)="onlyNumbers($event)">
+                        @if (formEdit.get('cellphone')?.invalid && formEdit.get('cellphone')?.touched) {
+                        <span class="error">Celular inválido</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Razón Social:</label>
+                    <input type="text" formControlName="companyName" maxlength="80"
+                        (keydown)="onlyLettersAndNumbers($event)">
+                    @if (formEdit.get('companyName')?.invalid && formEdit.get('companyName')?.touched) {
+                    <span class="error">Razón social inválida</span>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label>Ubigeo:</label>
+                    <input type="text" formControlName="ubigeoId" maxlength="6"
+                        (keydown)="onlyNumbers($event)">
+                    @if (formEdit.get('ubigeoId')?.invalid && formEdit.get('ubigeoId')?.touched) {
+                    <span class="error">Ubigeo inválido</span>
+                    }
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" class="view-btn-edit"><i class="fas fa-pen fa-xs"></i> Actualizar</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    }
+
+    <!-- PAGINACIÓN -->
+    <div class="pagination-section">
+        <span class="pagination-info">Página {{ currentPage }} de {{ totalPages }}</span>
+
+        <div class="pagination-controls">
+            <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
